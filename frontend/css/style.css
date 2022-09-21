@@ -1,1 +1,89 @@
+html {
+    font-size: 15px;
+}
+body{
+    margin: 0 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    color: #2b2a2c;
+}
+.container{
+    width: 100%;
+    max-width: 1400px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin: 0 auto;
+}
+nav{
+    margin-left: 5rem;
+    margin-right: 5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    height: 100%;
+}
+.nav__link{
+    margin-left: 2rem;
+    position: relative;
+    font-size: 0.93rem;
+    color: #2b2a2c;
+    text-transform: uppercase;
+    font-weight: 700;
+    text-decoration: none;
+}
+.nav__link--btn{
+    padding: 0.66rem 2rem;
+    border: solid 2px #2b2a2c;
+    border-radius: 20px;
+}
+.nav__icon{
+    width: 15px;
+}
+h1{
+    text-transform: uppercase;
+    font-family: "";
+    font-size: 7rem;
+}
+.header__content{
+    max-height: 15rem;
+    display: flex;
+    align-items: center;
+    margin-top: -2rem;
+    margin-bottom: 1rem;
+    justify-content: space-evenly;
+}
+.header__inner{
+    max-height: 12rem;
+    border-bottom: solid gray 2px;
 
+}
+.header__link{
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+.intro__content{
+    margin-top: -8rem;
+    display: flex;
+    margin-bottom: 3rem;
+}
+.intro__photo{
+    height: 50%;
+    max-width: 500px;
+    padding-top: 3rem;
+}
+.intro__text{
+    color: #2b2a2c;
+    font-size: 4rem;
+    font-style: italic;
+    width: 70%;
+}
+.intro{
+    margin-top: 8rem;
+    border-bottom: solid rgb(192, 192, 192) 2px;
+}
+.intro__sale{
+    color: gray;
+    font-style: italic;
+    margin-top: -2rem;
+    font-size: 2rem;
+}
