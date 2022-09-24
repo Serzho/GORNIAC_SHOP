@@ -1,17 +1,25 @@
 import sys
 
-import uvicorn
-from fastapi import FastAPI
 sys.path.append("../../../backend")
-from backend.cfg import HOST_API, PORT_API
 
+from fastapi.responses import HTMLResponse
+from backend.core.sevice import upload_pages
+from fastapi import FastAPI
+
+pages_dict = upload_pages()
 app = FastAPI()
 
 
 @app.get("/test")
 async def test() -> dict:
-    return {"blocks": "GAAAAAAAY"}
+    return {"Request": "success"}
 
-if __name__ == "__main__":
-    uvicorn.run(app=app, host=HOST_API, port=PORT_API)
+
+@app.get("/", response_class=HTMLResponse)
+async def main_page() -> HTMLResponse:
+    page = pages_dict.get("index.html")
+    if page is None:
+        raise FileNotFoundError("index.html not found!")
+    else:
+        return HTMLResponse(content=page, status_code=200)
 
