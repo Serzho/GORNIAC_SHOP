@@ -2,8 +2,8 @@ import uvicorn
 import sys
 
 sys.path.append("../../../backend")
-from backend.cfg import HOST_API, PORT_API
-from backend.core.sevice import mount_static_files
+from cfg import HOST_API, PORT_API
+from core.sevice import mount_static_files
 from endpoints.endpoints import app
 
 mount_static_files(app)

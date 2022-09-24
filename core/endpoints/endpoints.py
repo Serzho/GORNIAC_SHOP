@@ -1,9 +1,9 @@
 import sys
 
-sys.path.append("../../../backend")
+sys.path.append("../../backend")
 
 from fastapi.responses import HTMLResponse
-from backend.core.sevice import upload_pages
+from core.sevice import upload_pages
 from fastapi import FastAPI
 
 pages_dict = upload_pages()
