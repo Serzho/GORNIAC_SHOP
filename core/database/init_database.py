@@ -1,11 +1,14 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-
+from cfg import DB_USER, DB_PASSWORD, DB_DIALECT, DB_DRIVER, HOST_DB
 Base = declarative_base()
 
 
 def load_session() -> Session:
-    engine = create_engine()  # создание движка базы данных
+    engine = create_engine(
+        f"{DB_DIALECT}+{DB_DRIVER}://{DB_USER}:{DB_PASSWORD}@{HOST_DB}"
+    )  # создание движка базы данных
     Base.metadata.create_all(bind=engine)  # создание базы данных
+    print("tables created")
     return Session(bind=engine)

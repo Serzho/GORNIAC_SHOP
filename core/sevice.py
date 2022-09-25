@@ -14,7 +14,7 @@ def upload_pages() -> dict:
 
 
 def mount_static_files(app: FastAPI) -> None:
-    app.mount("static", StaticFiles(directory="static"), name="static")
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 def base_logger(msg: str, module_name: str) -> None:

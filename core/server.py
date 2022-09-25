@@ -5,6 +5,7 @@ sys.path.append("../../../backend")
 from cfg import HOST_API, PORT_API
 from core.sevice import mount_static_files
 from endpoints.endpoints import app
+from database.init_database import load_session
 
 mount_static_files(app)
 

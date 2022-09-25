@@ -1,17 +1,19 @@
 import sys
 
 sys.path.append("../../backend")
-
+from core.db_handler import DatabaseHandler
 from fastapi.responses import HTMLResponse
 from core.sevice import upload_pages
 from fastapi import FastAPI
-
+sys.path.append("../../core")
 pages_dict = upload_pages()
 app = FastAPI()
-
+databaseHandler = DatabaseHandler()
 
 @app.get("/test")
 async def test() -> dict:
+    databaseHandler.signUp("aaaa", "bbbb")
+    databaseHandler.getUserslist()
     return {"Request": "success"}
 
 
