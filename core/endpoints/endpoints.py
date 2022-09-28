@@ -1,14 +1,16 @@
 import sys
 
 sys.path.append("../../backend")
-from core.db_handler import DatabaseHandler
+
+from core.database_handler import DatabaseHandler
 from fastapi.responses import HTMLResponse
 from core.sevice import upload_pages
 from fastapi import FastAPI
+
 sys.path.append("../../core")
 pages_dict = upload_pages()
-app = FastAPI()
 databaseHandler = DatabaseHandler()
+app = FastAPI()
 
 @app.get("/test")
 async def test() -> dict:

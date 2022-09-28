@@ -1,10 +1,12 @@
 version: "3.9"
 services:
   postgres:
+    container_name: postgres_container
     image: 'postgres:latest'
     restart: always
     environment:
       container_name: postgres_container
+      POSTGRES_DB: gorniac
       POSTGRES_USER: root
       POSTGRES_PASSWORD: gorniacisgood
       PGDATA: "/var/lib/postgresql/data/pgdata"
@@ -14,6 +16,14 @@ services:
     ports:
       - "5432:5432"
 
-networks:
-  postgres:
-    driver: bridge
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4:5.7
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "kudrsv.kudrsv@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "rootgorniac"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - ./pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
