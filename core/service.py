@@ -51,7 +51,6 @@ def upload_pages() -> dict:
 def mount_static_files(app: FastAPI) -> None:
     app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
 def base_logger(msg: str, module_name: str) -> None:
     time = datetime.now().time()
     logging.info(f" {time.strftime('%H:%M:%S')} {module_name}: {msg}")
