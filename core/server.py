@@ -14,9 +14,8 @@ def log(message: str) -> None:
 
 
 if __name__ == "__main__":
-    create_logger("log.txt")
-    log("Logger initialized")
     mount_static_files(app)
     log("Static files mounted")
     log("Starting uvicorn server...")
     uvicorn.run(app=app, host=HOST_API, port=PORT_API)
+    log("Application shutting down...")

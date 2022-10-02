@@ -13,4 +13,6 @@ DB_NAME = "gorniac"
 PGADMIN_DEFAULT_EMAIL = "kudrsv.kudrsv@gmail.com"
 PGADMIN_DEFAULT_PASSWORD = "gorniacadmin"
 
+LOGFILE_PATH = "log.txt"
+
 ECHO_FLAG = False

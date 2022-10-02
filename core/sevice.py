@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from cfg import LOGFILE_PATH
 
 
 def upload_pages() -> dict:
@@ -25,3 +26,6 @@ def base_logger(msg: str, module_name: str) -> None:
 def create_logger(filename: str) -> None:
     logging.basicConfig(filename=filename, level=logging.INFO)
     logging.info("\n" * 3 + "/" * 50)
+
+
+create_logger(LOGFILE_PATH)
