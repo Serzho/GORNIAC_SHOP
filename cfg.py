@@ -13,4 +13,4 @@ DB_NAME = "gorniac"
 PGADMIN_DEFAULT_EMAIL = "kudrsv.kudrsv@gmail.com"
 PGADMIN_DEFAULT_PASSWORD = "gorniacadmin"
 
-ECHO_FLAG = True
+ECHO_FLAG = False
