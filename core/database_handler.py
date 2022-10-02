@@ -4,11 +4,11 @@ sys.path.append("database")
 
 from database.init_database import load_session
 from database.user_table import User
-#from database.reservation_table import Reservation
-#from database.product_table import Product
-#from database.item_table import Item
+from database.reservation_table import Reservation
+from database.product_table import Product
+from database.item_table import Item
 from datetime import date
-from core.sevice import base_logger
+from core.service import base_logger
 from hashlib import sha3_256
 
 
@@ -43,4 +43,20 @@ class DatabaseHandler:
                 log(f"UNKNOWN ERROR: {e}")
                 return False, e
 
+    def get_product_cols(self) -> list[dict]:
+        products = self.__session.query(
+            Product.product_id,
+            Product.dev_date,
+            Product.product_name,
+            Product.logo_file
+        ).all()
+        product_cols = []
+        for el in products:
+            product_cols.append({
+                "product_id": el[0],
+                "dev_date": f"{el[1].day}.{el[1].month}.{el[1].year}",
+                "product_name": el[2],
+                "logo_file": el[3]
+            })
 
+        return product_cols

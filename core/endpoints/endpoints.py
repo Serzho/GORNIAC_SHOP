@@ -4,7 +4,7 @@ sys.path.append("../../backend")
 
 from core.database_handler import DatabaseHandler
 from fastapi.responses import HTMLResponse
-from core.sevice import upload_pages, base_logger
+from core.service import upload_pages, base_logger, update_main_page
 from fastapi import FastAPI
 from core.endpoints.requests_models import *
 
@@ -31,7 +31,10 @@ async def sign_up(signup_info: Signup_request) -> dict:
 @app.get("/", response_class=HTMLResponse)
 async def main_page() -> HTMLResponse:
     page = pages_dict.get("index.html")
+    product_col_rows = databaseHandler.get_product_cols()
+    # print(product_col_rows)
+    full_page = update_main_page(page, product_col_rows)
     if page is None:
         raise FileNotFoundError("index.html not found!")
     else:
-        return HTMLResponse(content=page, status_code=200)
+        return HTMLResponse(content=full_page, status_code=200)
