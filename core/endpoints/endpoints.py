@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse
 from core.service import upload_pages, base_logger, update_main_page
 from fastapi import FastAPI
 from core.endpoints.requests_models import *
-
+from core.auth_handler import Auth
 
 def log(message: str) -> None:
     module_name = "ENDPOINTS"
@@ -18,14 +18,24 @@ sys.path.append("../../core")
 pages_dict = upload_pages()
 databaseHandler = DatabaseHandler()
 app = FastAPI()
-
+auth_handler = Auth(databaseHandler)
 
 @app.post("/sign_up")
 async def sign_up(signup_info: Signup_request) -> dict:
-    log(f"REQUEST /sign_up: name = {signup_info.name}")
-    success, response_msg = databaseHandler.signUp(signup_info.name, signup_info.password)
+    log(f"REQUEST /sign_up: name = {signup_info.username}")
+    success, response_msg = auth_handler.sign_up(signup_info.username, signup_info.password)
     log(f"RESPONSE /sign_up: success = {success}, response_msg = {response_msg}")
     return {"Success": success, "Response": response_msg}
+
+
+@app.post("/login")
+async def login(lodin_info: Login_request) -> None:
+    pass
+
+
+@app.get("/refresh_token")
+async def refresh_token() -> None:
+    pass
 
 
 @app.get("/", response_class=HTMLResponse)

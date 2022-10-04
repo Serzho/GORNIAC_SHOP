@@ -300,6 +300,9 @@ h1{
     z-index: 1;
 }
 
+body.no-scroll{
+    overflow: hidden;
+}
 
 .modal-work__btn:focus{
     outline: none;

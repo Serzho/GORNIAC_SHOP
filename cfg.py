@@ -16,3 +16,4 @@ PGADMIN_DEFAULT_PASSWORD = "gorniacadmin"
 LOGFILE_PATH = "log.txt"
 
 ECHO_FLAG = False
+SECRET = "GORNIYBODRIY"
