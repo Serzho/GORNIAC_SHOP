@@ -44,21 +44,26 @@ class DatabaseHandler:
                 return False, e
 
     def get_product_cols(self) -> list[dict]:
+        # TODO: СДЕЛАТЬ НОРМАЛЬНОЕ ОТОБРАЖЕНИЕ ДАТЫ!!!
         log("Getting products from database")
-        products = self.__session.query(
-            Product.product_id,
-            Product.dev_date,
-            Product.product_name,
-            Product.logo_file
-        ).all()
+        products = self.__session.query(Product).all()
         product_cols = []
         log(f"Founded {len(products)} products")
         for el in products:
             product_cols.append({
-                "product_id": el[0],
-                "dev_date": f"{el[1].day}.{el[1].month}.{el[1].year}",
-                "product_name": el[2],
-                "logo_file": el[3]
+                "product_id": el.product_id,
+                "dev_date": f"{el.dev_date.day}.{el.dev_date.month}.{el.dev_date.year}",
+                "nicotine": el.nicotine,
+                "vg_pg": el.vg_pg,
+                "amount_items": el.amount_items,
+                "is_demo": el.is_demo,
+                "is_active": el.is_active,
+                "description": el.description,
+                "price": el.price,
+                "volume": el.volume,
+                "rating": el.rating,
+                "product_name": el.product_name,
+                "logo_file": el.logo_file
             })
 
         return product_cols
