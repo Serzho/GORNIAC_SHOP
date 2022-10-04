@@ -44,6 +44,7 @@ class DatabaseHandler:
                 return False, e
 
     def get_product_cols(self) -> list[dict]:
+        log("Getting products from database")
         products = self.__session.query(
             Product.product_id,
             Product.dev_date,
@@ -51,6 +52,7 @@ class DatabaseHandler:
             Product.logo_file
         ).all()
         product_cols = []
+        log(f"Founded {len(products)} products")
         for el in products:
             product_cols.append({
                 "product_id": el[0],

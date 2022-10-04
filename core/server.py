@@ -4,7 +4,7 @@ import sys
 sys.path.append("../../../backend")
 
 from cfg import HOST_API, PORT_API
-from core.service import mount_static_files, create_logger, base_logger
+from core.service import mount_static_files, base_logger
 from endpoints.endpoints import app
 
 
