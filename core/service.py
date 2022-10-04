@@ -45,7 +45,7 @@ def update_main_page(index_html: str, products: list[dict]) -> str:
     product_template = template_file.read()
     template_file.close()
 
-    template_file = open("templates/modal_product_template.html", "r")
+    template_file = open("templates/modal_product_template.html", "r", encoding="UTF-8")
     modal_template = template_file.read()
     template_file.close()
 
@@ -93,12 +93,20 @@ def update_main_page(index_html: str, products: list[dict]) -> str:
 
         modal = modal.replace(
             '</span>',
-            f'</span>{row["amount_items"]}'
+            f'</span>{row["amount_items"]} шт'
         )
 
         modal = modal.replace(
-            '<div class="modal-work__about-chars">',
-            f'<div class="modal-work__about-chars">{row["vg_pg"]} {row["nicotine"]} {row["volume"]}'
+            '<div class="modal-work__about-chars-vgpg">',
+            f'<div class="modal-work__about-chars-vgpg">VG/PG: {row["vg_pg"]}'
+        )
+        modal = modal.replace(
+            '<div class="modal-work__about-chars-nic">',
+            f'<div class="modal-work__about-chars-nic">NIC: {row["nicotine"]} mg/ml'
+        )
+        modal = modal.replace(
+            '<div class="modal-work__about-chars-volume">',
+            f'<div class="modal-work__about-chars-volume">{row["volume"]} ml'
         )
 
         modal = modal.replace(

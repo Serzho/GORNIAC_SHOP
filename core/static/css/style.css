@@ -22,6 +22,22 @@ nav{
     align-items: center;
     height: 100%;
 }
+.btn{
+    display: inline-block;
+    align-items: flex-start;
+    padding: 1.05rem 1.7rem;
+    min-width: 170px;
+    border: solid 1px #6a696b;
+    border-radius: 1.8rem;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1.06rem;
+    color: #2b2a2c;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+}
 .nav__link{
     margin-left: 2rem;
     position: relative;
@@ -162,7 +178,7 @@ h1{
 .modal__dialog{
     width: 100%;
     max-width: 1200px;
-    height: 669.75px;
+    height: 800px;
     margin: auto auto;
     position: relative;
     background-color: white;
@@ -193,7 +209,8 @@ h1{
 
 .modal-work{
     display: flex;
-    height: 669px;
+    width: 50%;
+    height: 800px;
 }
 
 .modal-work__previews{
@@ -203,7 +220,8 @@ h1{
 }
 
 .modal-work__content{
-    width: 35%;
+    margin-left: 2rem;
+    min-width: 350px;
     position: relative;
     padding: 2.4rem 6.6rem 1rem 1.73rem;
 }
@@ -211,7 +229,7 @@ h1{
 .modal-work__photo{
     position: relative;
     top: 50%;
-    left: 50%;
+    left: 55%;
     z-index: 1;
     transform: translate3d(-50%, -50%, 0);
 }
@@ -221,17 +239,21 @@ h1{
 }
 
 .modal-work__title{
-    margin-bottom: 0.2rem;
-    font-size: 2.12rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 4rem;
     color: #2b2a2c;
     font-weight: 700;
     text-transform: uppercase;
 }
 
 .modal-work__info{
-    font-size: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 2rem;
     color: #6a696b;
     text-transform: uppercase;
+    margin-bottom: 1rem;
 }
 
 .modal-work__divider{
@@ -249,41 +271,35 @@ h1{
     font-weight: 700;
 }
 
-.modal-work__about-movie{
+.modal-work__about-chars{
+    display: flex;
+    justify-content: space-between;
     font-size: 0.94rem;
     font-style: italic;
     color: #6a696b;
 }
 
 .modal-work__text{
-    margin-top: 1rem;
-    margin-bottom: 6.0rem;
-    font-size: 0.96rem;
+    margin-top: 3rem;
+    font-size: 1.4rem;
     color: #6a696b;
     line-height: 1.5;
     font-weight: 300;
+    height: 400px;
+
 }
 
 .modal-work__footer{
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     position: relative;
+    margin-bottom: -8rem;
     bottom: 0;
     left: 0;
     z-index: 1;
 }
 
-.modal-work__btn{
-    padding: 0;
-    background: none;
-    border: 0;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.94rem;
-    color: #2b2a2c;
-    text-transform: uppercase;
-}
 
 .modal-work__btn:focus{
     outline: none;
