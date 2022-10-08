@@ -25,6 +25,7 @@ class DatabaseHandler:
         log("Database handler initialized")
 
     def username_exist(self, username: str) -> bool:
+        # print(self.__session.query(User.name).filter(User.name == username).count())
         return bool(self.__session.query(User.name).filter(User.name == username).count())
 
     def add_user(self, username: str, hashed_password: str) -> (bool, str):

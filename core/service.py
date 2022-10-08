@@ -36,6 +36,14 @@ def mount_static_files(app: FastAPI) -> None:
     log("Static files was mounted")
 
 
+def update_signup_page(signup_html: str, message: str) -> str:
+    signup_html = signup_html.replace(
+        '<body>',
+        f'<body> <p><font size="5" color="red" face="Arial">{message}</font></p>'
+    )
+    return signup_html
+
+
 def update_main_page(index_html: str, products: list[dict]) -> str:
     log(f"Updating main page with {len(products)} products")
     product_cols = []

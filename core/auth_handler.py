@@ -26,10 +26,10 @@ class Auth:
     def login(self, username: str, password: str) -> (bool, str):
         if not self.databaseHandler.username_exist(username):
             return False, f"User with name {username} doesn't exists!"
-        elif self.databaseHandler.get_user()["hashed_password"] == self.hash_password(password):
+        elif self.databaseHandler.get_user(username)["hashed_password"] == self.hash_password(password):
             return True, "Correct authentication"
         else:
-            return False, "Wrong password"
+            return False, "Invalid password"
 
     def encode_token(self, username):
         payload = {
@@ -44,16 +44,20 @@ class Auth:
             algorithm='HS256'
         )
 
-    def decode_token(self, token):
+    def decode_token(self, token) -> (bool, str):
         try:
             payload = jwt.decode(token, self.secret, algorithms=['HS256'])
             if payload['scope'] == 'access_token':
-                return payload['sub']
-            raise HTTPException(status_code=401, detail='Scope for the token is invalid')
+                return True, payload['sub']
+            else:
+                return False, 'Scope for the token is invalid'
+            # raise HTTPException(status_code=401, detail=)
         except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail='Token expired')
+            return False, 'Token expired'
+            # raise HTTPException(status_code=401, detail='Token expired')
         except jwt.InvalidTokenError:
-            raise HTTPException(status_code=401, detail='Invalid token')
+            return False, 'Invalid token'
+            # raise HTTPException(status_code=401, detail='Invalid token')
 
     def encode_refresh_token(self, username):
         payload = {
