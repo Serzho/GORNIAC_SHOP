@@ -50,8 +50,8 @@ async def login(login_info: Login_form = Depends(Login_form.as_form)) -> HTTPExc
         return HTTPException(status_code=401, detail=response_msg)
     else:
         access_token = auth_handler.encode_token(login_info.username)
-        refresh_token = auth_handler.encode_refresh_token(login_info.username)
-        return {'access_token': access_token, 'refresh_token': refresh_token}
+        refreshed_token = auth_handler.encode_refresh_token(login_info.username)
+        return {'access_token': access_token, 'refresh_token': refreshed_token}
 
 
 @app.get("/profile")
@@ -63,6 +63,7 @@ async def profile_page(profile_info: Optional[str] = Header(None)) -> HTMLRespon
         return HTMLResponse(content=pages_dict["profile.html"], status_code=200)
     else:
         return RedirectResponse("/login")
+
 
 @app.post("/auth/signup")
 async def signup(signup_info: Signup_form = Depends(Signup_form.as_form)) -> RedirectResponse or HTMLResponse:
