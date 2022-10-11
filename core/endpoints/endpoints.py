@@ -1,16 +1,18 @@
-import sys
-
-
 from core.database_handler import DatabaseHandler
 from fastapi.responses import HTMLResponse, RedirectResponse
 from core.service import upload_pages, base_logger
-from core.pages_loader import load_profile_page, load_main_page, load_signup_page
-from fastapi import FastAPI, Depends, HTTPException
+from core.pages_loader import load_profile_page, load_main_page, load_signup_page, load_login_page
+from fastapi import FastAPI, Depends
 from core.endpoints.requests_models import *
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import MissingTokenError, JWTDecodeError
 from core.auth_handler import Auth
-from time import sleep
+
+
+pages_dict = upload_pages()
+databaseHandler = DatabaseHandler()
+app = FastAPI()
+auth_handler = Auth(databaseHandler)
 
 
 def log(message: str) -> None:
@@ -18,85 +20,109 @@ def log(message: str) -> None:
     base_logger(msg=message, module_name=module_name)
 
 
-sys.path.append("../../core")
-pages_dict = upload_pages()
-databaseHandler = DatabaseHandler()
-app = FastAPI()
-auth_handler = Auth(databaseHandler)
-
-
 @AuthJWT.load_config
-def get_config():
+def get_config() -> Settings:
+    log("Loading AuthJWT config...")
     return Settings()
 
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page() -> HTMLResponse:
+    log("Getting login page request")
     return HTMLResponse(content=pages_dict["login.html"], status_code=200)
+
+
+@app.get("/login/result={message}", response_class=HTMLResponse)
+async def login_page(message: str) -> HTMLResponse:
+    log(f"Getting login page with message={message}")
+    page = pages_dict["login.html"]
+    page = load_login_page(page, message)
+    return HTMLResponse(content=page, status_code=200)
 
 
 @app.get("/signup", response_class=HTMLResponse)
 async def signup_page() -> HTMLResponse:
+    log("Getting signup page request")
     return HTMLResponse(content=pages_dict["signup.html"], status_code=200)
 
 
 @app.get("/signup/result={message}", response_class=HTMLResponse)
 async def signup_page(message: str) -> HTMLResponse:
+    log(f"Getting signup page with message={message}")
     page = pages_dict["signup.html"]
     page = load_signup_page(page, message)
     return HTMLResponse(content=page, status_code=200)
 
 
-@app.post("/auth/login")
-async def login(login_info: Login_form = Depends(Login_form.as_form), Authorize: AuthJWT = Depends()) -> HTTPException or HTMLResponse:
+@app.post("/auth/login", response_class=RedirectResponse)
+async def login(login_info: Login_form = Depends(Login_form.as_form),
+                Authorize: AuthJWT = Depends()) -> RedirectResponse:
+
+    log(f"Login request: username={login_info.username}")
     success, response_msg = auth_handler.login(login_info.username, login_info.password)
-    print(success, response_msg)
+    log(f"Login result: success={success}, response_msg={response_msg}")
     if not success:
-        return HTTPException(status_code=401, detail=response_msg)
+        log("Redirecting to login page")
+        return RedirectResponse(f"/login/result={response_msg}", status_code=303)
     else:
+        log("Creating access and refresh tokens")
         response = RedirectResponse(url="/", status_code=303)
         access_token = Authorize.create_access_token(subject=login_info.username)
         refreshed_token = Authorize.create_refresh_token(subject=login_info.username)
         Authorize.set_access_cookies(access_token, response=response)
         Authorize.set_refresh_cookies(refreshed_token, response=response)
+        log("Redirecting to main page with tokens")
         return response
 
 
 @app.get("/profile")
 async def profile_page(Authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    log("Getting profile page request")
     try:
         Authorize.jwt_required()
-        return HTMLResponse(content=load_profile_page(pages_dict["profile.html"]), status_code=200)
+        current_user = Authorize.get_jwt_subject()
+        log(f"Returning profile page for user={current_user}")
+        return HTMLResponse(content=load_profile_page(pages_dict["profile.html"], current_user), status_code=200)
     except (MissingTokenError, JWTDecodeError):
+        log("User not authorized! Redirecting to login page")
         return RedirectResponse("/login")
 
 
-@app.post("/auth/signup")
-async def signup(signup_info: Signup_form = Depends(Signup_form.as_form)) -> RedirectResponse or HTMLResponse:
+@app.post("/auth/signup", response_class=RedirectResponse)
+async def signup(signup_info: Signup_form = Depends(Signup_form.as_form)) -> RedirectResponse:
+    log(f"Signup request: name={signup_info.username}")
     success, response_msg = auth_handler.sign_up(signup_info.username, signup_info.password)
+    log(f"Signup request result: success={success}, response_msg={response_msg}")
     if success:
+        log("Redirecting to login page")
         return RedirectResponse("/login", status_code=303)
     else:
+        log("Redirecting to signup page ")
         return RedirectResponse(f"/signup/result={response_msg}", status_code=303)
 
 
 @app.get("/refresh_token")
 async def refresh_token(Authorize: AuthJWT = Depends()):
+    log("Refreshing token request")
     Authorize.jwt_refresh_token_required()
     current_user = Authorize.get_jwt_subject()
     new_access_token = Authorize.create_access_token(subject=current_user)
     Authorize.set_access_cookies(new_access_token)
-    return {"msg": "The token has been refresh"}
+    return {}
 
 
-@app.get('/auth/logout')
-def logout(Authorize: AuthJWT = Depends()):
+@app.get('/auth/logout', response_class=RedirectResponse)
+def logout(Authorize: AuthJWT = Depends()) -> RedirectResponse:
+    log("Logout request")
+    response = RedirectResponse(url="/", status_code=303)
     try:
         Authorize.jwt_required()
-        Authorize.unset_jwt_cookies()
-        return {"msg": "Logout successfully response"}
+        Authorize.unset_jwt_cookies(response)
+        log("JWT was deleted from cookie")
     except (MissingTokenError, JWTDecodeError):
-        return {"msg": "Logout exception!!!"}
+        log("JWT was not found in cookie!")
+    finally:
+        return response
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -108,9 +134,10 @@ async def main_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
         Authorize.jwt_required()
         username = Authorize.get_jwt_subject()
         is_authorized = True
+        log(f"Main page request from authorized user: username={username}")
     except (MissingTokenError, JWTDecodeError):
         is_authorized, username = False, None
-    print(username)
+        log(f"Main page request from non-authorized user")
     full_page = load_main_page(page, product_col_rows, is_authorized, username)
     if page is None:
         log("index.html not found!")

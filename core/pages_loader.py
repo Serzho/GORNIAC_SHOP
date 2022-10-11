@@ -1,17 +1,18 @@
 from service import base_logger
 
-onclick_function = 'onclick="for(let i = 0; i < 10; i++){document.location.href=\'auth/logout\'; document.location.href = \'/\'; window.location.reload();} return false;"'
 
 def log(message: str) -> None:
-    base_logger(msg=message, module_name="DYNAMICLOADER")
+    base_logger(msg=message, module_name="PAGESLOADER")
 
 
-def load_profile_page(profile_html: str) -> str:
+def load_profile_page(profile_html: str, username: str) -> str:
+    log(f"Loading profile page for username {username}")
     # TODO: loading profile page
     return profile_html
 
 
 def load_signup_page(signup_html: str, message: str) -> str:
+    log(f"Loading signup page with message={message}")
     signup_html = signup_html.replace(
         '<body>',
         f'<body> <p><font size="5" color="red" face="Arial">{message}</font></p>'
@@ -19,8 +20,17 @@ def load_signup_page(signup_html: str, message: str) -> str:
     return signup_html
 
 
+def load_login_page(login_html: str, message: str) -> str:
+    log(f"Loading login page with message={message}")
+    login_html = login_html.replace(
+        '<body>',
+        f'<body> <p><font size="5" color="red" face="Arial">{message}</font></p>'
+    )
+    return login_html
+
+
 def load_main_page(index_html: str, products: list[dict], is_authorized: bool = False, username: str = None) -> str:
-    log(f"Updating main page with {len(products)} products")
+    log(f"Updating main page with {len(products)} products for user with name={username}")
     product_cols = []
     modals = []
 
@@ -32,7 +42,6 @@ def load_main_page(index_html: str, products: list[dict], is_authorized: bool = 
     modal_template = template_file.read()
     template_file.close()
 
-    log("Template uploaded")
     for row in products:
         product_col = product_template
         modal = modal_template
@@ -116,7 +125,7 @@ def load_main_page(index_html: str, products: list[dict], is_authorized: bool = 
     if is_authorized:
         index_html = index_html.replace(
             '<div class="header__icons">',
-            f'<div class="header__icons"><a {onclick_function}><img src="static/images/logout.png" alt="" height="41px" width="41px"> </a> '
+            f'<div class="header__icons"><a href="auth/logout"><img src="static/images/logout.png" alt="" height="41px" width="41px"> </a> '
         )
         index_html = index_html.replace(
             '</nav>',
