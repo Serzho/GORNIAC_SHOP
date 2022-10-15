@@ -131,6 +131,11 @@ def load_main_page(index_html: str, products: list[dict], is_authorized: bool = 
             '</nav>',
             f'</nav>{username}'
         )
+    else:
+        index_html = index_html.replace(
+            '<a href="#" class="btn  btn__buy">в корзину',
+            '<a href="#" class="btn  btn__buy">авторизуйтесь'
+        )
 
     log("Returning up-to-date main page")
     return index_html
