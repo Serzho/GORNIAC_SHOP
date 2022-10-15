@@ -2,7 +2,7 @@ version: "3.9"
 services:
   postgres:
     container_name: postgres_container
-    image: 'postgres:latest'
+    image: 'postgres:15'
     restart: always
     environment:
       container_name: postgres_container
@@ -11,14 +11,14 @@ services:
       POSTGRES_PASSWORD: gorniacisgood
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
-      - ../Init Database:/docker-entrypoint-initdb.d
-      - .:/var/lib/postgresql/data
+      - /init_db/:/docker-entrypoint-initdb.d
+      - /pgdata/:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   pgadmin:
     container_name: pgadmin_container
-    image: dpage/pgadmin4:5.7
+    image: dpage/pgadmin4:6.14
     environment:
       PGADMIN_DEFAULT_EMAIL: "kudrsv.kudrsv@gmail.com"
       PGADMIN_DEFAULT_PASSWORD: "rootgorniac"
