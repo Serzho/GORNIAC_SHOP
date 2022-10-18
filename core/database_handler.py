@@ -46,6 +46,13 @@ class DatabaseHandler:
         else:
             return {}
 
+    def get_product_for_order(self, product_id: int) -> dict:
+        query = self.__session.query(Product.id, Product.product_name, Product.price, Product.is_active).filter(
+            Product.id == product_id,
+            Product.is_active.is_(True)
+        ).first()
+        return {"product_name": query.product_name, "price": query.price}
+
     def get_product_cols(self) -> list[dict]:
         # TODO: СДЕЛАТЬ НОРМАЛЬНОЕ ОТОБРАЖЕНИЕ ДАТЫ!!!
         log("Getting products from database")

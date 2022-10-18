@@ -1,19 +1,21 @@
 from core.database_handler import DatabaseHandler
 from fastapi.responses import HTMLResponse, RedirectResponse
 from core.service import upload_pages, base_logger
-from core.pages_loader import load_profile_page, load_main_page, load_signup_page, load_login_page
+from core.pages_loader import load_profile_page, load_main_page, load_signup_page, load_login_page, load_basket_page
 from fastapi import FastAPI, Depends
 from core.endpoints.requests_models import *
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import MissingTokenError, JWTDecodeError
 from core.auth_handler import Auth
+from core.basket_handler import BasketHandler
 
 
 pages_dict = upload_pages()
 databaseHandler = DatabaseHandler()
 app = FastAPI()
 auth_handler = Auth(databaseHandler)
-
+order_dict = {}
+basket_handler = BasketHandler(databaseHandler)
 
 def log(message: str) -> None:
     module_name = "ENDPOINTS"
@@ -123,6 +125,23 @@ def logout(Authorize: AuthJWT = Depends()) -> RedirectResponse:
         log("JWT was not found in cookie!")
     finally:
         return response
+
+
+@app.get('/basket')
+def basket_page(Authorize: AuthJWT = Depends()) -> RedirectResponse or HTMLResponse:
+    log("Basket page request")
+    try:
+        Authorize.jwt_required()
+        username = Authorize.get_jwt_subject()
+        log(f"Basket page request from authorized user: username={username}")
+    except (MissingTokenError, JWTDecodeError):
+        log(f"Basket page request from non-authorized user")
+        log("Redirecting to login page")
+        return RedirectResponse("/login", status_code=303)
+
+    basket_dict = basket_handler.get_basket_list(username)
+    page = load_basket_page(pages_dict["basket.html"], username, basket_dict)
+    return HTMLResponse(content=page, status_code=200)
 
 
 @app.get("/", response_class=HTMLResponse)

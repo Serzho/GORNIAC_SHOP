@@ -29,6 +29,18 @@ def load_login_page(login_html: str, message: str) -> str:
     return login_html
 
 
+def load_basket_page(basket_html: str, name: str, basket_list: dict) -> str:
+    total = basket_list.get("total")
+    products = basket_list.get("products")
+    basket_html = basket_html.replace('</body>', f'<h3>{name}</h3></body>')
+    for product_name, price_and_amount in products.items():
+        price = price_and_amount["price"]
+        amount = price_and_amount["amount"]
+        basket_html = basket_html.replace('</body>', f'<p>{product_name}, {price}, {amount}</p></body>')
+    basket_html = basket_html.replace('</body>', f'<p>{total}</p></body>')
+    return basket_html
+
+
 def load_main_page(index_html: str, products: list[dict], is_authorized: bool = False, username: str = None) -> str:
     log(f"Updating main page with {len(products)} products for user with name={username}")
     product_cols = []

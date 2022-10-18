@@ -1,0 +1,29 @@
+from datetime import datetime
+
+
+class BasketHandler:
+    basket_dict: dict
+    database_handler = None
+
+    def __init__(self, database_handler):
+        self.basket_dict = {}
+        self.database_handler = database_handler
+
+    def get_basket_list(self, name: str) -> dict:
+        if self.basket_dict.get(name) is None:
+            self.add_basket_list(name)
+        return self.basket_dict.get(name)
+
+    def add_basket_list(self, name: str) -> None:
+        self.basket_dict.update({
+                name: {"creation_time": datetime.today(), "products": {}, "total": 0}
+            }
+        )
+
+    def add_product(self, name: str, product_id: int) -> None:
+        adding_product = self.database_handler.get_product_for_order(product_id)
+        if adding_product is not None:
+            basket_list = self.get_basket_list(name)
+            product_list = basket_list.get("products")
+            product_list.update({adding_product["product_name"]: {"price": adding_product["price"], "amount": 1}})
+            basket_list.update({"total": basket_list.get("total") + adding_product["price"]})
