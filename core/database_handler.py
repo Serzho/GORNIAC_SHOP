@@ -47,10 +47,11 @@ class DatabaseHandler:
             return {}
 
     def get_product_for_order(self, product_id: int) -> dict:
-        query = self.__session.query(Product.id, Product.product_name, Product.price, Product.is_active).filter(
-            Product.id == product_id,
+        query = self.__session.query(Product.product_id, Product.product_name, Product.price, Product.is_active).filter(
+            Product.product_id == product_id,
             Product.is_active.is_(True)
         ).first()
+        log(f"Returning product for order: product_id={product_id}")
         return {"product_name": query.product_name, "price": query.price}
 
     def get_product_cols(self) -> list[dict]:

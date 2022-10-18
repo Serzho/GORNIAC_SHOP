@@ -56,6 +56,21 @@ async def signup_page(message: str) -> HTMLResponse:
     return HTMLResponse(content=page, status_code=200)
 
 
+@app.get("/add_to_basket/product={product_id}", response_class=RedirectResponse)
+async def add_to_basket(product_id: str, Authorize: AuthJWT = Depends()) -> RedirectResponse:
+    log(f"Adding product to basket request with product_id={product_id}")
+    try:
+        Authorize.jwt_required()
+        current_user = Authorize.get_jwt_subject()
+        log(f"Adding product for user={current_user}")
+    except (MissingTokenError, JWTDecodeError):
+        log("User not authorized! Redirecting to login page")
+        return RedirectResponse("/login")
+    basket_handler.add_product(current_user, int(product_id))
+    log("Successfully added, redirecting to main page")
+    return RedirectResponse(url="/", status_code=303)
+
+
 @app.post("/auth/login", response_class=RedirectResponse)
 async def login(login_info: Login_form = Depends(Login_form.as_form),
                 Authorize: AuthJWT = Depends()) -> RedirectResponse:
@@ -141,6 +156,7 @@ def basket_page(Authorize: AuthJWT = Depends()) -> RedirectResponse or HTMLRespo
 
     basket_dict = basket_handler.get_basket_list(username)
     page = load_basket_page(pages_dict["basket.html"], username, basket_dict)
+    log("Returning up-to-date basket page")
     return HTMLResponse(content=page, status_code=200)
 
 

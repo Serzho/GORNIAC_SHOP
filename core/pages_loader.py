@@ -30,6 +30,7 @@ def load_login_page(login_html: str, message: str) -> str:
 
 
 def load_basket_page(basket_html: str, name: str, basket_list: dict) -> str:
+    log(f"Updating basket page for user with name={name}")
     total = basket_list.get("total")
     products = basket_list.get("products")
     basket_html = basket_html.replace('</body>', f'<h3>{name}</h3></body>')
@@ -38,6 +39,7 @@ def load_basket_page(basket_html: str, name: str, basket_list: dict) -> str:
         amount = price_and_amount["amount"]
         basket_html = basket_html.replace('</body>', f'<p>{product_name}, {price}, {amount}</p></body>')
     basket_html = basket_html.replace('</body>', f'<p>{total}</p></body>')
+    log("Returning up-to-date basket page")
     return basket_html
 
 
@@ -118,6 +120,11 @@ def load_main_page(index_html: str, products: list[dict], is_authorized: bool = 
             f'<div class="modal-work__text">{row["description"]}'
         )
 
+        modal = modal.replace(
+            '<a href="#" class="btn  btn__buy">',
+            f'<a href="/add_to_basket/product={row["product_id"]}" class="btn  btn__buy">'
+        )
+
         product_cols.append(product_col)
         modals.append(modal)
 
@@ -145,8 +152,8 @@ def load_main_page(index_html: str, products: list[dict], is_authorized: bool = 
         )
     else:
         index_html = index_html.replace(
-            '<a href="#" class="btn  btn__buy">в корзину',
-            '<a href="#" class="btn  btn__buy">авторизуйтесь'
+            'class="btn  btn__buy">в корзину',
+            'class="btn  btn__buy">авторизуйтесь'
         )
 
     log("Returning up-to-date main page")
