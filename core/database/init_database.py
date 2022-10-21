@@ -1,9 +1,10 @@
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.exc import OperationalError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from core.service import base_logger
-from cfg import DB_USER, DB_PASSWORD, DB_DIALECT, DB_DRIVER, HOST_DB, DB_NAME, ECHO_FLAG
-
+from cfg import DB_USER, DB_PASSWORD, DB_DIALECT, DB_DRIVER, HOST_DB, DB_NAME, ECHO_FLAG, PORT_DB
+from psycopg2 import OperationalError as ps2OperationalError
 Base = declarative_base()
 
 
@@ -17,6 +18,11 @@ def load_session() -> Session:
         f"{DB_DIALECT}+{DB_DRIVER}://{DB_USER}:{DB_PASSWORD}@{HOST_DB}/{DB_NAME}",
         echo=ECHO_FLAG
     )  # создание движка базы данных
-    Base.metadata.create_all(bind=engine)  # создание базы данных
+    try:
+        Base.metadata.create_all(bind=engine)  # создание базы данных
+    except (OperationalError, ps2OperationalError):
+        log("BASE CONNECTION ERROR!!!")
+        raise
+
     log("Returning session")
     return Session(bind=engine)

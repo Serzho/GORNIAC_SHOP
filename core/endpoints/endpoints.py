@@ -17,6 +17,7 @@ auth_handler = Auth(databaseHandler)
 order_dict = {}
 basket_handler = BasketHandler(databaseHandler)
 
+
 def log(message: str) -> None:
     module_name = "ENDPOINTS"
     base_logger(msg=message, module_name=module_name)
@@ -69,6 +70,36 @@ async def add_to_basket(product_id: str, Authorize: AuthJWT = Depends()) -> Redi
     basket_handler.add_product(current_user, int(product_id))
     log("Successfully added, redirecting to main page")
     return RedirectResponse(url="/", status_code=303)
+
+
+@app.get("/increase_from_basket/product={product_name}", response_class=RedirectResponse)
+async def increase_from_basket(product_name: str, Authorize: AuthJWT = Depends()) -> RedirectResponse:
+    log(f"Increasing product from basket request with product_name={product_name}")
+    try:
+        Authorize.jwt_required()
+        current_user = Authorize.get_jwt_subject()
+        log(f"Increasing product for user={current_user}")
+    except (MissingTokenError, JWTDecodeError):
+        log("User not authorized! Redirecting to login page")
+        return RedirectResponse("/login")
+    product_id = databaseHandler.get_product_id_by_name(product_name)
+    basket_handler.add_product(current_user, product_id)
+    log("Successfully increased, redirecting to basket page")
+    return RedirectResponse(url="/basket", status_code=303)
+
+@app.get("/decrease_from_basket/product={product_name}", response_class=RedirectResponse)
+async def decrease_from_basket(product_name: str, Authorize: AuthJWT = Depends()) -> RedirectResponse:
+    log(f"Decreasing product from basket request with product_name={product_name}")
+    try:
+        Authorize.jwt_required()
+        current_user = Authorize.get_jwt_subject()
+        log(f"Decreasing product for user={current_user}")
+    except (MissingTokenError, JWTDecodeError):
+        log("User not authorized! Redirecting to login page")
+        return RedirectResponse("/login")
+    basket_handler.decrease_product(current_user, product_name)
+    log("Successfully decreased, redirecting to basket page")
+    return RedirectResponse(url="/basket", status_code=303)
 
 
 @app.post("/auth/login", response_class=RedirectResponse)

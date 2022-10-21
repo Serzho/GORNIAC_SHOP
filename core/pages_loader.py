@@ -37,7 +37,15 @@ def load_basket_page(basket_html: str, name: str, basket_list: dict) -> str:
     for product_name, price_and_amount in products.items():
         price = price_and_amount["price"]
         amount = price_and_amount["amount"]
-        basket_html = basket_html.replace('</body>', f'<p>{product_name}, {price}, {amount}</p></body>')
+        basket_html = basket_html.replace('</body>', f'<p>{product_name}, {price}, {amount} </p> '
+                                                     f'<a href="/decrease_from_basket/product={product_name}"'
+                                                     f' class="basket__link">'
+                                                     f'<img src="static/images/minus.png" alt="" '
+                                                     f'height="25px" width="25px"></a> '
+                                                     f'<a href="/increase_from_basket/product={product_name}" '
+                                                     f'class="basket__link">'
+                                                     f'<img src="static/images/plus.png" alt="" '
+                                                     f'height="25px" width="25px"></a></body>')
     basket_html = basket_html.replace('</body>', f'<p>{total}</p></body>')
     log("Returning up-to-date basket page")
     return basket_html

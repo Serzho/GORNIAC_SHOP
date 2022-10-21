@@ -39,6 +39,11 @@ class DatabaseHandler:
             log(f"UNKNOWN ERROR: {e}")
             return False, e
 
+    def get_product_id_by_name(self, product_name: str) -> int:
+        return self.__session.query(Product.product_name, Product.product_id).filter(
+            Product.product_name == product_name
+        ).first().product_id
+
     def get_user(self, username: str) -> dict:
         user = self.__session.query(User).filter(User.name == username).first()
         if user is not None:
@@ -46,7 +51,7 @@ class DatabaseHandler:
         else:
             return {}
 
-    def get_product_for_order(self, product_id: int) -> dict:
+    def get_product_for_basket(self, product_id: int) -> dict:
         query = self.__session.query(Product.product_id, Product.product_name, Product.price, Product.is_active).filter(
             Product.product_id == product_id,
             Product.is_active.is_(True)

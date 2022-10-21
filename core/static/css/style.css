@@ -308,3 +308,8 @@ body.no-scroll{
     outline: none;
     border: 0;
 }
+
+.basket__link{
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}

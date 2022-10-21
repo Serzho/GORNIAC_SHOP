@@ -31,12 +31,34 @@ class BasketHandler:
 
     def add_product(self, name: str, product_id: int) -> None:
         log(f"Adding product with product_id={product_id} for user with name={name}")
-        adding_product = self.database_handler.get_product_for_order(product_id)
+        adding_product = self.database_handler.get_product_for_basket(product_id)
         if adding_product is not None:
             basket_list = self.get_basket_list(name)
             product_list = basket_list.get("products")
-            product_list.update({adding_product["product_name"]: {"price": adding_product["price"], "amount": 1}})
+            current_product = product_list.get(adding_product["product_name"])
+            if current_product is not None:
+                new_amount = 1 + product_list[adding_product["product_name"]]["amount"]
+            else:
+                new_amount = 1
+            product_list.update({adding_product["product_name"]: {"price": adding_product["price"], "amount": new_amount}})
             basket_list.update({"total": basket_list.get("total") + adding_product["price"]})
             log(f"Product was added")
         else:
             log(f"Adding product is None!!!")
+
+    def decrease_product(self, name: str, product_name: str) -> None:
+        print(self.basket_dict)
+        log(f"Removing product with product_name={product_name} for user with name={name}")
+        basket_list = self.get_basket_list(name)
+        product_list = basket_list.get("products")
+        current_product = product_list.get(product_name)
+        if current_product is not None:
+            last_amount = product_list[product_name]["amount"]
+            if last_amount <= 1:
+                del product_list[product_name]
+            else:
+                product_list.get(product_name).update({"amount": last_amount - 1})
+            basket_list.update({"total": basket_list.get("total") - current_product["price"]})
+        else:
+            log(f"Current product with name={product_name} doesn't exist in list")
+        print(self.basket_dict)
