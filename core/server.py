@@ -6,6 +6,7 @@ sys.path.append("../../../backend")
 from cfg import HOST_API, PORT_API
 from core.service import mount_static_files, base_logger
 from endpoints.endpoints import app
+from core.image_updater import update_images
 
 
 def log(message: str) -> None:
@@ -15,6 +16,7 @@ def log(message: str) -> None:
 
 if __name__ == "__main__":
     mount_static_files(app)
+    update_images()
     log("Static files mounted")
     log("Starting uvicorn server...")
     uvicorn.run(app=app, host=HOST_API, port=PORT_API)
