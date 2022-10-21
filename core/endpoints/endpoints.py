@@ -1,7 +1,7 @@
 from core.database_handler import DatabaseHandler
 from fastapi.responses import HTMLResponse, RedirectResponse
 from core.service import upload_pages, base_logger
-from core.pages_loader import load_profile_page, load_main_page, load_signup_page, load_login_page, load_basket_page
+from core.pages_loader import load_profile_page, load_main_page, load_signup_page, load_login_page, load_basket_page, add_authorized_effects
 from fastapi import FastAPI, Depends
 from core.endpoints.requests_models import *
 from fastapi_jwt_auth import AuthJWT
@@ -43,10 +43,48 @@ async def login_page(message: str) -> HTMLResponse:
     return HTMLResponse(content=page, status_code=200)
 
 
-@app.get("/signup", response_class=HTMLResponse)
-async def signup_page() -> HTMLResponse:
-    log("Getting signup page request")
-    return HTMLResponse(content=pages_dict["signup.html"], status_code=200)
+@app.get("/about", response_class=HTMLResponse)
+async def about_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
+    log("Getting about page request")
+    page = pages_dict["about.html"]
+    try:
+        Authorize.jwt_required()
+        current_user = Authorize.get_jwt_subject()
+        log(f"Getting about page for user={current_user}")
+        page = add_authorized_effects(page, current_user)
+    except (MissingTokenError, JWTDecodeError):
+        log("User not authorized!")
+    return HTMLResponse(content=page, status_code=200)
+
+
+@app.get("/news", response_class=HTMLResponse)
+async def news_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
+    log("Getting news page request")
+    page = pages_dict["news.html"]
+    try:
+        Authorize.jwt_required()
+        current_user = Authorize.get_jwt_subject()
+        log(f"Getting news page for user={current_user}")
+        page = add_authorized_effects(page, current_user)
+    except (MissingTokenError, JWTDecodeError):
+        log("User not authorized!")
+
+    return HTMLResponse(content=page, status_code=200)
+
+
+@app.get("/contacts", response_class=HTMLResponse)
+async def contacts_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
+    log("Getting contacts page request")
+    page = pages_dict["contacts.html"]
+    try:
+        Authorize.jwt_required()
+        current_user = Authorize.get_jwt_subject()
+        log(f"Getting contacts page for user={current_user}")
+        page = add_authorized_effects(page, current_user)
+    except (MissingTokenError, JWTDecodeError):
+        log("User not authorized!")
+
+    return HTMLResponse(content=page, status_code=200)
 
 
 @app.get("/signup/result={message}", response_class=HTMLResponse)
@@ -86,6 +124,7 @@ async def increase_from_basket(product_name: str, Authorize: AuthJWT = Depends()
     basket_handler.add_product(current_user, product_id)
     log("Successfully increased, redirecting to basket page")
     return RedirectResponse(url="/basket", status_code=303)
+
 
 @app.get("/decrease_from_basket/product={product_name}", response_class=RedirectResponse)
 async def decrease_from_basket(product_name: str, Authorize: AuthJWT = Depends()) -> RedirectResponse:
@@ -130,7 +169,8 @@ async def profile_page(Authorize: AuthJWT = Depends()) -> HTMLResponse or Redire
         Authorize.jwt_required()
         current_user = Authorize.get_jwt_subject()
         log(f"Returning profile page for user={current_user}")
-        return HTMLResponse(content=load_profile_page(pages_dict["profile.html"], current_user), status_code=200)
+        page = add_authorized_effects(pages_dict["profile.html"], current_user)
+        return HTMLResponse(content=load_profile_page(page, current_user), status_code=200)
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized! Redirecting to login page")
         return RedirectResponse("/login")
@@ -180,13 +220,14 @@ def basket_page(Authorize: AuthJWT = Depends()) -> RedirectResponse or HTMLRespo
         Authorize.jwt_required()
         username = Authorize.get_jwt_subject()
         log(f"Basket page request from authorized user: username={username}")
+        page = add_authorized_effects(pages_dict["basket.html"], username)
     except (MissingTokenError, JWTDecodeError):
         log(f"Basket page request from non-authorized user")
         log("Redirecting to login page")
         return RedirectResponse("/login", status_code=303)
 
     basket_dict = basket_handler.get_basket_list(username)
-    page = load_basket_page(pages_dict["basket.html"], username, basket_dict)
+    page = load_basket_page(page, username, basket_dict)
     log("Returning up-to-date basket page")
     return HTMLResponse(content=page, status_code=200)
 
@@ -201,10 +242,11 @@ async def main_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
         username = Authorize.get_jwt_subject()
         is_authorized = True
         log(f"Main page request from authorized user: username={username}")
+        page = add_authorized_effects(page, username)
     except (MissingTokenError, JWTDecodeError):
         is_authorized, username = False, None
         log(f"Main page request from non-authorized user")
-    full_page = load_main_page(page, product_col_rows, is_authorized, username)
+    full_page = load_main_page(page, product_col_rows, is_authorized)
     if page is None:
         log("index.html not found!")
         raise FileNotFoundError("index.html not found!")

@@ -29,6 +29,18 @@ def load_login_page(login_html: str, message: str) -> str:
     return login_html
 
 
+def add_authorized_effects(page_html: str, username: str) -> str:
+    page_html = page_html.replace(
+        '<div class="header__icons">',
+        f'<div class="header__icons"><a href="auth/logout"><img src="static/images/logout.png" alt="" height="41px" width="41px"> </a> '
+    )
+    page_html = page_html.replace(
+        '</nav>',
+        f'</nav>{username}'
+    )
+    return page_html
+
+
 def load_basket_page(basket_html: str, name: str, basket_list: dict) -> str:
     log(f"Updating basket page for user with name={name}")
     total = basket_list.get("total")
@@ -51,8 +63,8 @@ def load_basket_page(basket_html: str, name: str, basket_list: dict) -> str:
     return basket_html
 
 
-def load_main_page(index_html: str, products: list[dict], is_authorized: bool = False, username: str = None) -> str:
-    log(f"Updating main page with {len(products)} products for user with name={username}")
+def load_main_page(index_html: str, products: list[dict], is_authorized: bool = False) -> str:
+    log(f"Updating main page with {len(products)} products")
     product_cols = []
     modals = []
 
@@ -149,16 +161,7 @@ def load_main_page(index_html: str, products: list[dict], is_authorized: bool = 
         f'{modal_windows}<script src="static/js/app.js"></script>'
     )
 
-    if is_authorized:
-        index_html = index_html.replace(
-            '<div class="header__icons">',
-            f'<div class="header__icons"><a href="auth/logout"><img src="static/images/logout.png" alt="" height="41px" width="41px"> </a> '
-        )
-        index_html = index_html.replace(
-            '</nav>',
-            f'</nav>{username}'
-        )
-    else:
+    if not is_authorized:
         index_html = index_html.replace(
             'class="btn  btn__buy">в корзину',
             'class="btn  btn__buy">авторизуйтесь'
