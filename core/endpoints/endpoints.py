@@ -87,6 +87,12 @@ async def contacts_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
     return HTMLResponse(content=page, status_code=200)
 
 
+@app.get("/signup", response_class=HTMLResponse)
+async def signup_page() -> HTMLResponse:
+    log("Getting signup page request")
+    return HTMLResponse(content=pages_dict["signup.html"], status_code=200)
+
+
 @app.get("/signup/result={message}", response_class=HTMLResponse)
 async def signup_page(message: str) -> HTMLResponse:
     log(f"Getting signup page with message={message}")
