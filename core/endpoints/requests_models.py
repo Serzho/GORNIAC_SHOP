@@ -3,7 +3,7 @@ from fastapi import Form
 from cfg import SECRET_JWT, JWT_LOCATION
 
 
-class Login_form(BaseModel):
+class LoginForm(BaseModel):
     username: str
     password: str
 
@@ -12,17 +12,18 @@ class Login_form(BaseModel):
         return cls(username=username, password=password)
 
 
-class Signup_page_request(BaseModel):
+class SignupPageRequest(BaseModel):
     message: str | None
 
 
-class Signup_form(BaseModel):
+class SignupForm(BaseModel):
     username: str
     password: str
+    email: str
 
     @classmethod
-    def as_form(cls, username: str = Form(), password: str = Form()):
-        return cls(username=username, password=password)
+    def as_form(cls, username: str = Form(), password: str = Form(), email: str = Form()):
+        return cls(username=username, password=password, email=email)
 
 
 class Settings(BaseModel):

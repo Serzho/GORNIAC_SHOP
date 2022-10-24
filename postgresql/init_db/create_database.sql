@@ -27,6 +27,7 @@ CREATE TABLE "user" (
   last_reservation_date date DEFAULT NULL,
   promo_codes json NOT NULL,
   reservations json NOT NULL,
+  email varchar(64) NOT NULL,
   PRIMARY KEY (user_id)
 );
 

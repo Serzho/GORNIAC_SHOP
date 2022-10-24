@@ -148,7 +148,7 @@ async def decrease_from_basket(product_name: str, Authorize: AuthJWT = Depends()
 
 
 @app.post("/auth/login", response_class=RedirectResponse)
-async def login(login_info: Login_form = Depends(Login_form.as_form),
+async def login(login_info: LoginForm = Depends(LoginForm.as_form),
                 Authorize: AuthJWT = Depends()) -> RedirectResponse:
 
     log(f"Login request: username={login_info.username}")
@@ -183,9 +183,9 @@ async def profile_page(Authorize: AuthJWT = Depends()) -> HTMLResponse or Redire
 
 
 @app.post("/auth/signup", response_class=RedirectResponse)
-async def signup(signup_info: Signup_form = Depends(Signup_form.as_form)) -> RedirectResponse:
+async def signup(signup_info: SignupForm = Depends(SignupForm.as_form)) -> RedirectResponse:
     log(f"Signup request: name={signup_info.username}")
-    success, response_msg = auth_handler.sign_up(signup_info.username, signup_info.password)
+    success, response_msg = auth_handler.sign_up(signup_info.username, signup_info.password, signup_info.email)
     log(f"Signup request result: success={success}, response_msg={response_msg}")
     if success:
         log("Redirecting to login page")

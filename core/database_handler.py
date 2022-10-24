@@ -24,12 +24,15 @@ class DatabaseHandler:
         log("Session loaded")
         log("Database handler initialized")
 
+    def email_exist(self, email: str):
+        return bool(self.__session.query(User.email).filter(User.email == email).count())
+
     def username_exist(self, username: str) -> bool:
         return bool(self.__session.query(User.name).filter(User.name == username).count())
 
-    def add_user(self, username: str, hashed_password: str) -> (bool, str):
+    def add_user(self, username: str, hashed_password: str, email: str) -> (bool, str):
         try:
-            user = User(username, 0, True, hashed_password, False, None, date.today(), None, None, None)
+            user = User(username, 0, True, hashed_password, False, None, date.today(), None, None, None, email)
             self.__session.rollback()
             self.__session.add(user)
             self.__session.commit()

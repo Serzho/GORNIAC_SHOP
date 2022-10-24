@@ -10,8 +10,8 @@ def log(message: str) -> None:
 class Auth:
     databaseHandler = None
 
-    def __init__(self, databaseHandler) -> None:
-        self.databaseHandler = databaseHandler
+    def __init__(self, database_handler) -> None:
+        self.databaseHandler = database_handler
         log("Auth handler initialized!")
 
     @staticmethod
@@ -19,15 +19,18 @@ class Auth:
         log("Hashing password")
         return sha3_256(password.encode()).hexdigest()
 
-    def sign_up(self, username: str, password: str) -> (bool, str):
+    def sign_up(self, username: str, password: str, email: str) -> (bool, str):
         hashed_password = self.hash_password(password)
         log(f"Sign up: username={username}, sha_password={hashed_password}")
+        if self.databaseHandler.email_exist(email):
+            log(f"Email {email} already used!")
+            return False, f"Email {email} already used!"
         if self.databaseHandler.username_exist(username):
             log(f"User with name {username} already exists!")
             return False, f"User with name {username} already exists!"
         else:
             log(f"Adding user with name={username} to database")
-            return self.databaseHandler.add_user(username, hashed_password)
+            return self.databaseHandler.add_user(username, hashed_password, email)
 
     def login(self, username: str, password: str) -> (bool, str):
         log(f"Login user with name={username}")
