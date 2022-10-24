@@ -25,7 +25,7 @@ class Auth:
         if self.databaseHandler.email_exist(email):
             log(f"Email {email} already used!")
             return False, f"Email {email} already used!"
-        if self.databaseHandler.username_exist(username):
+        elif self.databaseHandler.username_exist(username):
             log(f"User with name {username} already exists!")
             return False, f"User with name {username} already exists!"
         else:

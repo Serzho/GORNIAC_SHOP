@@ -1,7 +1,6 @@
 import sys
-
 sys.path.append("database")
-
+from datetime import datetime
 from database.init_database import load_session
 from database.user_table import User
 from database.reservation_table import Reservation
@@ -42,7 +41,7 @@ class DatabaseHandler:
             log(f"UNKNOWN ERROR: {e}")
             return False, e
 
-    def get_product_id_by_name(self, product_name: str) -> int:
+    def get_product_id(self, product_name: str) -> int:
         return self.__session.query(Product.product_name, Product.product_id).filter(
             Product.product_name == product_name
         ).first().product_id
@@ -86,3 +85,36 @@ class DatabaseHandler:
             })
 
         return product_cols
+
+    def get_amount(self, product_name: str) -> int:
+        return self.__session.query(Product.product_name, Product.amount_items).filter(
+            Product.product_name == product_name
+        ).first().amount_items
+
+    def order_exist(self, order_name: str) -> bool:
+        return bool(self.__session.query(Reservation.reservation_name).filter(Reservation.reservation_name == order_name).count())
+
+    def get_user_id(self, username: str) -> int:
+        return self.__session.query(User.user_id, User.name).filter(User.name == username).first().user_id
+
+    def add_order(self, username: str, order_name: str, product_name: str, amount: int, sale: int, price: int) -> (bool, str):
+        try:
+            print(self.get_user_id(username))
+            order = Reservation(
+                reservation_date=datetime.now(),
+                user_id=self.get_user_id(username),
+                reservation_name=order_name,
+                product_id=self.get_product_id(product_name),
+                amount=amount,
+                is_completed=False,
+                sale=sale,
+                total=amount * price - sale
+            )
+            self.__session.rollback()
+            self.__session.add(order)
+            self.__session.commit()
+            log("Successfully adding order to database!")
+            return True, f"Order with name {order_name} successfully added"
+        except Exception as e:
+            log(f"UNKNOWN ERROR: {e}")
+            return False, e

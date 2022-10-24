@@ -1,5 +1,6 @@
 from datetime import datetime
 from core.service import base_logger
+from database_handler import DatabaseHandler
 
 
 def log(message: str) -> None:
@@ -11,7 +12,7 @@ class BasketHandler:
     basket_dict: dict
     database_handler = None
 
-    def __init__(self, database_handler):
+    def __init__(self, database_handler: DatabaseHandler):
         self.basket_dict = {}
         self.database_handler = database_handler
         log("Basket handler initialized")
@@ -25,8 +26,8 @@ class BasketHandler:
     def add_basket_list(self, name: str) -> None:
         log(f"Creating new basket list for user={name}")
         self.basket_dict.update({
-                name: {"creation_time": datetime.today(), "products": {}, "total": 0}
-            }
+            name: {"creation_time": datetime.today(), "products": {}, "total": 0}
+        }
         )
 
     def add_product(self, name: str, product_id: int) -> None:
@@ -40,7 +41,8 @@ class BasketHandler:
                 new_amount = 1 + product_list[adding_product["product_name"]]["amount"]
             else:
                 new_amount = 1
-            product_list.update({adding_product["product_name"]: {"price": adding_product["price"], "amount": new_amount}})
+            product_list.update(
+                {adding_product["product_name"]: {"price": adding_product["price"], "amount": new_amount}})
             basket_list.update({"total": basket_list.get("total") + adding_product["price"]})
             log(f"Product was added")
         else:
@@ -62,3 +64,34 @@ class BasketHandler:
         else:
             log(f"Current product with name={product_name} doesn't exist in list")
         print(self.basket_dict)
+
+    def check_order(self, username) -> (bool, str):
+        log(f"Checking order for username with name={username}")
+        basket_list = self.get_basket_list(username)
+        product_list = basket_list.get("products")
+        if not len(product_list):
+            return False, "Basket is empty!"
+        else:
+            for product_name, product_chars in product_list.items():
+                if product_chars["amount"] > self.database_handler.get_amount(product_name):
+                    return False, f"Invalid amount products: " \
+                                  f"only {self.database_handler.get_amount(product_name)} items of {product_name}" \
+                                  f" exists!"
+            return True, "Correct order!"
+
+    def order(self, username) -> None:
+        basket_list = self.get_basket_list(username)
+        product_list = basket_list.get("products")
+        while True:
+            number = 0
+            order_name = f"#{username}#{datetime.now().strftime('%Y%m%d')}#{number}"
+            if not self.database_handler.order_exist(order_name):
+                break
+            else:
+                number += 1
+
+        for product_name, product_chars in product_list.items():
+            self.database_handler.add_order(
+                username, order_name, product_name, product_chars["amount"], 0, product_chars["price"]
+            )
+

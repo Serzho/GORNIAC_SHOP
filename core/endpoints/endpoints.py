@@ -43,6 +43,22 @@ async def login_page(message: str) -> HTMLResponse:
     return HTMLResponse(content=page, status_code=200)
 
 
+@app.post("/order", response_class=RedirectResponse)
+async def order(Authorize: AuthJWT = Depends()) -> RedirectResponse:
+    log("Order request")
+    try:
+        Authorize.jwt_required()
+        current_user = Authorize.get_jwt_subject()
+        log(f"Order for user={current_user}")
+    except (MissingTokenError, JWTDecodeError):
+        log("User not authorized for order!")
+        return RedirectResponse("/")
+    success, response_msg = basket_handler.check_order(current_user)
+    if success:
+        log(f"Ordering for user {current_user}")
+        basket_handler.order(current_user)
+
+
 @app.get("/about", response_class=HTMLResponse)
 async def about_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
     log("Getting about page request")
@@ -126,7 +142,7 @@ async def increase_from_basket(product_name: str, Authorize: AuthJWT = Depends()
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized! Redirecting to login page")
         return RedirectResponse("/login")
-    product_id = databaseHandler.get_product_id_by_name(product_name)
+    product_id = databaseHandler.get_product_id(product_name)
     basket_handler.add_product(current_user, product_id)
     log("Successfully increased, redirecting to basket page")
     return RedirectResponse(url="/basket", status_code=303)

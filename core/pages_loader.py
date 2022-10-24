@@ -58,7 +58,9 @@ def load_basket_page(basket_html: str, name: str, basket_list: dict) -> str:
                                                      f'class="basket__link">'
                                                      f'<img src="static/images/plus.png" alt="" '
                                                      f'height="25px" width="25px"></a></body>')
-    basket_html = basket_html.replace('</body>', f'<p>{total}</p></body>')
+    basket_html = basket_html.replace('</body>', f'<p>{total}</p>'
+                                                 f'<form action="/order" method="post">'
+                                                 f'<input type="submit" value="Заказать"/></body>')
     log("Returning up-to-date basket page")
     return basket_html
 
