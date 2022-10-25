@@ -43,6 +43,13 @@ async def login_page(message: str) -> HTMLResponse:
     return HTMLResponse(content=page, status_code=200)
 
 
+@app.get("/good_order", response_class=HTMLResponse)
+async def good_order_page() -> HTMLResponse:
+    log(f"Getting good order page")
+    page = pages_dict["order.html"]
+    return HTMLResponse(content=page, status_code=200)
+
+
 @app.post("/order", response_class=RedirectResponse)
 async def order(Authorize: AuthJWT = Depends()) -> RedirectResponse:
     log("Order request")
@@ -57,6 +64,9 @@ async def order(Authorize: AuthJWT = Depends()) -> RedirectResponse:
     if success:
         log(f"Ordering for user {current_user}")
         basket_handler.order(current_user)
+        RedirectResponse("/good_order")
+    else:
+        RedirectResponse(f"/basket/result={response_msg}")
 
 
 @app.get("/about", response_class=HTMLResponse)

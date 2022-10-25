@@ -49,7 +49,6 @@ class BasketHandler:
             log(f"Adding product is None!!!")
 
     def decrease_product(self, name: str, product_name: str) -> None:
-        print(self.basket_dict)
         log(f"Removing product with product_name={product_name} for user with name={name}")
         basket_list = self.get_basket_list(name)
         product_list = basket_list.get("products")
@@ -63,7 +62,6 @@ class BasketHandler:
             basket_list.update({"total": basket_list.get("total") - current_product["price"]})
         else:
             log(f"Current product with name={product_name} doesn't exist in list")
-        print(self.basket_dict)
 
     def check_order(self, username) -> (bool, str):
         log(f"Checking order for username with name={username}")
@@ -79,7 +77,8 @@ class BasketHandler:
                                   f" exists!"
             return True, "Correct order!"
 
-    def order(self, username) -> None:
+    def order(self, username: str) -> None:
+        log(f"Order for user {username}")
         basket_list = self.get_basket_list(username)
         product_list = basket_list.get("products")
         while True:
@@ -89,9 +88,11 @@ class BasketHandler:
                 break
             else:
                 number += 1
-
+        log(f"Order for user {username}: title={order_name}")
         for product_name, product_chars in product_list.items():
-            self.database_handler.add_order(
+            success, response_msg = self.database_handler.add_order(
                 username, order_name, product_name, product_chars["amount"], 0, product_chars["price"]
             )
+            log(f"Order={order_name}: product={product_name}, success={success}, msg={response_msg}")
+
 

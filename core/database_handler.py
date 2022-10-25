@@ -97,9 +97,9 @@ class DatabaseHandler:
     def get_user_id(self, username: str) -> int:
         return self.__session.query(User.user_id, User.name).filter(User.name == username).first().user_id
 
-    def add_order(self, username: str, order_name: str, product_name: str, amount: int, sale: int, price: int) -> (bool, str):
+    def add_order(self, username: str, order_name: str, product_name: str, amount: int, sale: int, price: int) -> (bool,str):
+        log("Adding order to database")
         try:
-            print(self.get_user_id(username))
             order = Reservation(
                 reservation_date=datetime.now(),
                 user_id=self.get_user_id(username),
@@ -108,8 +108,9 @@ class DatabaseHandler:
                 amount=amount,
                 is_completed=False,
                 sale=sale,
-                total=amount * price - sale
+                total=amount*price - sale
             )
+            log(f"ORDER: {order.__dict__}")
             self.__session.rollback()
             self.__session.add(order)
             self.__session.commit()
