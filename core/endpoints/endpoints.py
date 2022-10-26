@@ -144,6 +144,11 @@ async def add_to_basket(product_id: str, Authorize: AuthJWT = Depends()) -> Redi
     return RedirectResponse(url="/", status_code=303)
 
 
+@app.get("/test")
+async def test_func():
+    print(databaseHandler.reserve_items(2, 2))
+
+
 @app.get("/increase_from_basket/product={product_name}", response_class=RedirectResponse)
 async def increase_from_basket(product_name: str, Authorize: AuthJWT = Depends()) -> RedirectResponse:
     log(f"Increasing product from basket request with product_name={product_name}")

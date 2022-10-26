@@ -41,6 +41,21 @@ class DatabaseHandler:
             log(f"UNKNOWN ERROR: {e}")
             return False, e
 
+    def reserve_items(self, product_id: int, amount: int):
+        reserved_list = []
+        items = self.__session.query(Item).filter(
+            Item.product_id == product_id, Item.is_reserved.is_not(True)
+        ).order_by(Item.manufacture_date).limit(amount).all()
+        for item in items:
+            try:
+                item.is_reserved = True
+                self.__session.commit()
+                reserved_list.append(item.item_id)
+            except Exception as e:
+                print(f"UNKNOWN ERROR: {e}")
+
+        return reserved_list
+
     def get_product_id(self, product_name: str) -> int:
         return self.__session.query(Product.product_name, Product.product_id).filter(
             Product.product_name == product_name
@@ -108,7 +123,8 @@ class DatabaseHandler:
                 amount=amount,
                 is_completed=False,
                 sale=sale,
-                total=amount*price - sale
+                total=amount*price - sale,
+                items_reserved={}
             )
             log(f"ORDER: {order.__dict__}")
             self.__session.rollback()

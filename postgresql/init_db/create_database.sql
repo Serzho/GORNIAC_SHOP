@@ -35,6 +35,8 @@ CREATE TABLE item (
   item_id integer NOT NULL GENERATED ALWAYS AS IDENTITY (start 1 increment 1 minvalue 1),
   product_id smallint NOT NULL,
   manufacture_date date NOT NULL,
+  is_reserved bool NOT NULL,
+  is_sales bool NOT NULL,
   PRIMARY KEY (item_id),
   CONSTRAINT item_product_id_product_logo_file_foreign FOREIGN KEY (product_id) REFERENCES product (product_id)
 );
@@ -49,6 +51,7 @@ CREATE TABLE reservation (
   is_completed bool NOT NULL,
   total smallint NOT NULL,
   sale smallint NOT NULL,
+  items_reserved json NOT NULL,
   PRIMARY KEY (reservation_id),
   CONSTRAINT reservation_product_id_product_product_id_foreign FOREIGN KEY (product_id) REFERENCES product (product_id),
   CONSTRAINT reservation_user_id_user_user_id_foreign FOREIGN KEY (user_id) REFERENCES "user" (user_id)
