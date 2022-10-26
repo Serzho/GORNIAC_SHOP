@@ -1,5 +1,6 @@
 from hashlib import sha3_256
 from service import base_logger
+from re import match
 
 
 def log(message: str) -> None:
@@ -20,11 +21,16 @@ class Auth:
         return sha3_256(password.encode()).hexdigest()
 
     def sign_up(self, username: str, password: str, email: str) -> (bool, str):
+        if not match(r"^(?=.*[0-9].*)(?=.*[a-z].*)(?=.*[A-Z].*)[0-9a-zA-Z]{8,}$", password):
+            return False, f"Too easy password"
         hashed_password = self.hash_password(password)
         log(f"Sign up: username={username}, sha_password={hashed_password}")
         if self.databaseHandler.email_exist(email):
             log(f"Email {email} already used!")
             return False, f"Email {email} already used!"
+        elif match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email) is None:
+            log(f"Email isn't correct!")
+            return False, f"Email isn't correct!"
         elif self.databaseHandler.username_exist(username):
             log(f"User with name {username} already exists!")
             return False, f"User with name {username} already exists!"

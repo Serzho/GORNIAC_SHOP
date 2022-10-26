@@ -53,7 +53,6 @@ class DatabaseHandler:
                 reserved_list.append(item.item_id)
             except Exception as e:
                 print(f"UNKNOWN ERROR: {e}")
-
         return reserved_list
 
     def get_product_id(self, product_name: str) -> int:
@@ -112,19 +111,19 @@ class DatabaseHandler:
     def get_user_id(self, username: str) -> int:
         return self.__session.query(User.user_id, User.name).filter(User.name == username).first().user_id
 
-    def add_order(self, username: str, order_name: str, product_name: str, amount: int, sale: int, price: int) -> (bool,str):
+    def add_order(self, username: str, order_name: str, product_id: int, amount: int, sale: int, price: int, reserved_dict: dict) -> (bool, str):
         log("Adding order to database")
         try:
             order = Reservation(
                 reservation_date=datetime.now(),
                 user_id=self.get_user_id(username),
                 reservation_name=order_name,
-                product_id=self.get_product_id(product_name),
+                product_id=product_id,
                 amount=amount,
                 is_completed=False,
                 sale=sale,
                 total=amount*price - sale,
-                items_reserved={}
+                items_reserved=reserved_dict
             )
             log(f"ORDER: {order.__dict__}")
             self.__session.rollback()
@@ -135,3 +134,11 @@ class DatabaseHandler:
         except Exception as e:
             log(f"UNKNOWN ERROR: {e}")
             return False, e
+
+    def refresh_amount_items(self, product_id: int):
+        product = self.__session.query(Product).filter(Product.product_id == product_id).first()
+        try:
+            product.amount_items = self.__session.query(Item.is_reserved).filter(Item.is_reserved.is_not(True)).count()
+            self.__session.commit()
+        except Exception as e:
+            print(f"UNKNOWN ERROR: {e}")

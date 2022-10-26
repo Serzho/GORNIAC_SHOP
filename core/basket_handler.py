@@ -90,9 +90,17 @@ class BasketHandler:
                 number += 1
         log(f"Order for user {username}: title={order_name}")
         for product_name, product_chars in product_list.items():
+            product_id = self.database_handler.get_product_id(product_name)
+            reserved_list = self.database_handler.reserve_items(
+                product_id=product_id,
+                amount=product_chars["amount"]
+            )
+            reserved_dict = {i: reserved_list[i] for i in range(len(reserved_list))}
+            self.database_handler.refresh_amount_items(product_id)
             success, response_msg = self.database_handler.add_order(
-                username, order_name, product_name, product_chars["amount"], 0, product_chars["price"]
+                username, order_name, product_id, product_chars["amount"], 0, product_chars["price"], reserved_dict
             )
             log(f"Order={order_name}: product={product_name}, success={success}, msg={response_msg}")
+
 
 
