@@ -81,8 +81,8 @@ class BasketHandler:
         log(f"Order for user {username}")
         basket_list = self.get_basket_list(username)
         product_list = basket_list.get("products")
+        number = 0
         while True:
-            number = 0
             order_name = f"#{username}#{datetime.now().strftime('%Y%m%d')}#{number}"
             if not self.database_handler.order_exist(order_name):
                 break

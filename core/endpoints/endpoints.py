@@ -1,3 +1,5 @@
+import time
+
 from core.database_handler import DatabaseHandler
 from fastapi.responses import HTMLResponse, RedirectResponse
 from core.service import upload_pages, base_logger
@@ -59,14 +61,14 @@ async def order(Authorize: AuthJWT = Depends()) -> RedirectResponse:
         log(f"Order for user={current_user}")
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized for order!")
-        return RedirectResponse("/")
+        return RedirectResponse("/login")
     success, response_msg = basket_handler.check_order(current_user)
     if success:
         log(f"Ordering for user {current_user}")
         basket_handler.order(current_user)
-        RedirectResponse("/good_order")
+        return RedirectResponse(url="/good_order", status_code=303)
     else:
-        RedirectResponse(f"/basket/result={response_msg}")
+        return RedirectResponse(url=f"/basket/result={response_msg}", status_code=303)
 
 
 @app.get("/about", response_class=HTMLResponse)
@@ -285,3 +287,14 @@ async def main_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
     else:
         log("HTMLResponse: index.html")
         return HTMLResponse(content=full_page, status_code=200)
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    # print("AAAAAAAAAAAAAAAa")
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    # print(f"Process time {process_time}")
+    response.headers["X-Process-Time"] = str(process_time)
+    return response

@@ -3,6 +3,10 @@ from fastapi import Form
 from cfg import SECRET_JWT, JWT_LOCATION
 
 
+class Request(BaseModel):
+    pass
+
+
 class LoginForm(BaseModel):
     username: str
     password: str

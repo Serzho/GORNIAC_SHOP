@@ -313,3 +313,9 @@ body.no-scroll{
     margin-left: 0.5rem;
     margin-right: 0.5rem;
 }
+
+.order__image{
+    display: block;
+    margin: auto;
+    margin-top: 5rem;
+}

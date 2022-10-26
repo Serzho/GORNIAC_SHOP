@@ -32,7 +32,7 @@ def load_login_page(login_html: str, message: str) -> str:
 def add_authorized_effects(page_html: str, username: str) -> str:
     page_html = page_html.replace(
         '<div class="header__icons">',
-        f'<div class="header__icons"><a href="auth/logout"><img src="static/images/logout.png" alt="" height="41px" width="41px"> </a> '
+        f'<div class="header__icons"><a href="auth/logout" class="header__link"><img src="static/images/logout.png" alt="" height="41px" width="41px"> </a> '
     )
     page_html = page_html.replace(
         '</nav>',
