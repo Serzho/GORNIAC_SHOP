@@ -16,6 +16,22 @@ class LoginForm(BaseModel):
         return cls(username=username, password=password)
 
 
+class ChangePasswordForm(BaseModel):
+    password: str
+
+    @classmethod
+    def as_form(cls, password: str = Form()):
+        return cls(password=password)
+
+
+class ChangeEmailForm(BaseModel):
+    email: str
+
+    @classmethod
+    def as_form(cls, email: str = Form()):
+        return cls(email=email)
+
+
 class SignupPageRequest(BaseModel):
     message: str | None
 

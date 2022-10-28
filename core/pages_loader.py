@@ -5,9 +5,12 @@ def log(message: str) -> None:
     base_logger(msg=message, module_name="PAGESLOADER")
 
 
-def load_profile_page(profile_html: str, username: str) -> str:
+def load_profile_page(profile_html: str, username: str, email: str, message: str or None) -> str:
     log(f"Loading profile page for username {username}")
-    # TODO: loading profile page
+    profile_html = profile_html.replace("<p><strong>Имя:</strong>", f"<p><strong>Имя:</strong> {username}")
+    profile_html = profile_html.replace('placeholder=""', f'placeholder="{email}"')
+    if message is not None:
+        profile_html = profile_html.replace('<div id="content-1">', f'<div id="content-1">{message}')
     return profile_html
 
 

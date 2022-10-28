@@ -224,7 +224,20 @@ async def profile_page(Authorize: AuthJWT = Depends()) -> HTMLResponse or Redire
         current_user = Authorize.get_jwt_subject()
         log(f"Returning profile page for user={current_user}")
         page = add_authorized_effects(pages_dict["profile.html"], current_user)
-        return HTMLResponse(content=load_profile_page(page, current_user), status_code=200)
+        return HTMLResponse(content=load_profile_page(page, current_user, databaseHandler.get_user_email(current_user), message=None), status_code=200)
+    except (MissingTokenError, JWTDecodeError):
+        log("User not authorized! Redirecting to login page")
+        return RedirectResponse("/login")
+
+
+@app.get("/profile/result={message}")
+async def profile_page(message: str, Authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    try:
+        Authorize.jwt_required()
+        current_user = Authorize.get_jwt_subject()
+        log(f"Returning profile page for user={current_user}")
+        page = add_authorized_effects(pages_dict["profile.html"], current_user)
+        return HTMLResponse(content=load_profile_page(page, current_user, databaseHandler.get_user_email(current_user), message), status_code=200)
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized! Redirecting to login page")
         return RedirectResponse("/login")
@@ -241,6 +254,28 @@ async def signup(signup_info: SignupForm = Depends(SignupForm.as_form)) -> Redir
     else:
         log("Redirecting to signup page ")
         return RedirectResponse(f"/signup/result={response_msg}", status_code=303)
+
+
+@app.post("/auth/change_password")
+async def change_password(update_info: ChangePasswordForm = Depends(ChangePasswordForm.as_form), Authorize: AuthJWT = Depends()):
+    try:
+        Authorize.jwt_required()
+        username = Authorize.get_jwt_subject()
+    except (MissingTokenError, JWTDecodeError):
+        return RedirectResponse("/login", status_code=303)
+    success, response_msg = auth_handler.change_password(username, update_info.password)
+    return RedirectResponse(f"/profile/result={response_msg}", status_code=303)
+
+
+@app.post("/auth/change_email")
+async def change_password(update_info: ChangeEmailForm = Depends(ChangeEmailForm.as_form), Authorize: AuthJWT = Depends()):
+    try:
+        Authorize.jwt_required()
+        username = Authorize.get_jwt_subject()
+    except (MissingTokenError, JWTDecodeError):
+        return RedirectResponse("/login", status_code=303)
+    success, response_msg = auth_handler.change_email(username, update_info.email)
+    return RedirectResponse(f"/profile/result={response_msg}", status_code=303)
 
 
 @app.get("/refresh_token")
@@ -311,7 +346,6 @@ async def main_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
 
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
-    # print("AAAAAAAAAAAAAAAa")
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time

@@ -23,6 +23,22 @@ class DatabaseHandler:
         log("Session loaded")
         log("Database handler initialized")
 
+    def change_user_password(self, username: str, hashed_password: str) -> None:
+        user = self.__session.query(User).filter(User.name == username).first()
+        try:
+            user.hashed_password = hashed_password
+            self.__session.commit()
+        except Exception as e:
+            print(f"UNKNOWN ERROR: {e}")
+
+    def change_user_email(self, username: str, email: str) -> None:
+        user = self.__session.query(User).filter(User.name == username).first()
+        try:
+            user.email = email
+            self.__session.commit()
+        except Exception as e:
+            print(f"UNKNOWN ERROR: {e}")
+
     def email_exist(self, email: str):
         return bool(self.__session.query(User.email).filter(User.email == email).count())
 
@@ -134,6 +150,9 @@ class DatabaseHandler:
         except Exception as e:
             log(f"UNKNOWN ERROR: {e}")
             return False, e
+
+    def get_user_email(self, username: str) -> str:
+        return self.__session.query(User.email, User.name).filter(User.name == username).first().email
 
     def refresh_amount_items(self, product_id: int):
         product = self.__session.query(Product).filter(Product.product_id == product_id).first()
