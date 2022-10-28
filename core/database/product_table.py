@@ -14,7 +14,7 @@ class Product(Base):
     is_active = Column("is_active", Boolean)
     product_name = Column("product_name", VARCHAR(32))
     description = Column("description", VARCHAR(3072))
-    logo_file = Column("logo_file", VARCHAR(32))
+    logo_file = Column("logo_file", VARCHAR(64))
     price = Column("price", SmallInteger)
     volume = Column("volume", SmallInteger)
     rating = Column("rating", SmallInteger)

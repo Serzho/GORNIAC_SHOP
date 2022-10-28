@@ -8,7 +8,7 @@ CREATE TABLE product (
   is_active boolean NOT NULL,
   product_name varchar(32) NOT NULL,
   description varchar(3072) NOT NULL,
-  logo_file varchar(32) NOT NULL,
+  logo_file varchar(64) NOT NULL,
   price smallint NOT NULL,
   volume smallint NOT NULL,
   rating smallint NOT NULL,

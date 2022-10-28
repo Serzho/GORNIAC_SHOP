@@ -83,7 +83,13 @@ def load_main_page(index_html: str, products: list[dict], is_authorized: bool = 
         modal = modal_template
         path = row["logo_file"]
 
-        if not row["is_active"] and not row["is_demo"]:
+        if row["is_demo"]:
+            path = "static/images/logo/comingsoon.png"
+            product_col = product_col.replace(
+                'data-modal=',
+                f''
+            )
+        elif not row["is_active"]:
             path = path.replace("logo/", "logo/soldout/soldout_")
             product_col = product_col.replace(
                 'data-modal=',

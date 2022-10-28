@@ -100,6 +100,21 @@ async def news_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
     return HTMLResponse(content=page, status_code=200)
 
 
+@app.get("/admin_panel")
+async def admin_panel_page(Authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    log("Getting admin panel page request")
+    page = pages_dict["admin_panel.html"]
+    try:
+        Authorize.jwt_required()
+        current_user = Authorize.get_jwt_subject()
+        if current_user == "admin":
+            page = add_authorized_effects(page, current_user)
+            return HTMLResponse(content=page, status_code=200)
+    except (MissingTokenError, JWTDecodeError):
+        pass
+    return RedirectResponse(url="/login", status_code=303)
+
+
 @app.get("/contacts", response_class=HTMLResponse)
 async def contacts_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
     log("Getting contacts page request")

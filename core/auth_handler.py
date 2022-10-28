@@ -14,6 +14,20 @@ class Auth:
     def __init__(self, database_handler) -> None:
         self.databaseHandler = database_handler
         log("Auth handler initialized!")
+        self.create_admin()
+
+    def create_admin(self):
+        if not self.databaseHandler.username_exist("admin"):
+            while True:
+                print("Please, enter admin password: \n")
+                password = input()
+                print("Please, enter email password: \n")
+                email = input()
+                success, msg = self.sign_up("admin", password, email)
+                if success:
+                    break
+                else:
+                    print(msg)
 
     @staticmethod
     def hash_password(password: str) -> str:
