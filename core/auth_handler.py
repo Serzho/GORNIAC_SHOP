@@ -4,6 +4,8 @@ from re import match
 from database_handler import DatabaseHandler
 
 
+# TODO: БАГ: ПРОПУСТИЛО БРЕДОВЫЙ ЕМЭИЛ ПРИ РЕГИСТРАЦИИ
+
 def log(message: str) -> None:
     module_name = "AUTH_HANDLER"
     base_logger(msg=message, module_name=module_name)
@@ -15,23 +17,32 @@ class Auth:
     def __init__(self, database_handler: DatabaseHandler) -> None:
         self.databaseHandler = database_handler
         log("Auth handler initialized!")
+        log("Creating admin profile")
         self.create_admin()
+        log("Admin was created!")
 
     def change_password(self, username: str, password: str) -> (bool, str):
+        log(f"Changing password for user={username}")
         if self.check_password(password):
             self.databaseHandler.change_user_password(username, self.hash_password(password))
+            log(f"Password for user={username} changed successfully!")
             return True, "Password was changed"
         else:
+            log(f"Password for user={username} didn't changed: password too easy")
             return False, "Password too easy!"
 
     def change_email(self, username: str, email: str) -> (bool, str):
+        log(f"Changing email for user={username}")
         if self.check_email(email):
             self.databaseHandler.change_user_email(username, email)
+            log(f"Email for user={username} changed successfully!")
             return True, "Email was changed"
         else:
+            log(f"Email for user={username} changed successfully!")
             return False, "Email isn't correct"
 
-    def create_admin(self):
+    def create_admin(self) -> None:
+        log("Creating admin")
         if not self.databaseHandler.username_exist("admin"):
             while True:
                 print("Please, enter admin password: \n")
@@ -40,8 +51,10 @@ class Auth:
                 email = input()
                 success, msg = self.sign_up("admin", password, email)
                 if success:
+                    log("Admin profile was created!")
                     break
                 else:
+                    log(f"Admin profile didn't created: {msg}")
                     print(msg)
 
     @staticmethod

@@ -8,6 +8,9 @@ def log(message: str) -> None:
     base_logger(msg=message, module_name=module_name)
 
 
+# TODO: БАГ: после неправильного заказа пустая страница
+# TODO: БАГ: не обновилось количество товара и не перешло в разряд проданного
+
 class BasketHandler:
     basket_dict: dict
     database_handler = None
@@ -101,6 +104,3 @@ class BasketHandler:
                 username, order_name, product_id, product_chars["amount"], 0, product_chars["price"], reserved_dict
             )
             log(f"Order={order_name}: product={product_name}, success={success}, msg={response_msg}")
-
-
-

@@ -3,7 +3,8 @@ import time
 from core.database_handler import DatabaseHandler
 from fastapi.responses import HTMLResponse, RedirectResponse
 from core.service import upload_pages, base_logger
-from core.pages_loader import load_profile_page, load_main_page, load_signup_page, load_login_page, load_basket_page, add_authorized_effects
+from core.pages_loader import load_profile_page, load_main_page, load_signup_page, load_login_page, load_basket_page, \
+    add_authorized_effects
 from fastapi import FastAPI, Depends
 from core.endpoints.requests_models import *
 from fastapi_jwt_auth import AuthJWT
@@ -53,11 +54,11 @@ async def good_order_page() -> HTMLResponse:
 
 
 @app.post("/order", response_class=RedirectResponse)
-async def order(Authorize: AuthJWT = Depends()) -> RedirectResponse:
+async def order(authorize: AuthJWT = Depends()) -> RedirectResponse:
     log("Order request")
     try:
-        Authorize.jwt_required()
-        current_user = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
         log(f"Order for user={current_user}")
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized for order!")
@@ -68,16 +69,17 @@ async def order(Authorize: AuthJWT = Depends()) -> RedirectResponse:
         basket_handler.order(current_user)
         return RedirectResponse(url="/good_order", status_code=303)
     else:
+        log(f"Order failed: {response_msg}")
         return RedirectResponse(url=f"/basket/result={response_msg}", status_code=303)
 
 
 @app.get("/about", response_class=HTMLResponse)
-async def about_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
+async def about_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
     log("Getting about page request")
     page = pages_dict["about.html"]
     try:
-        Authorize.jwt_required()
-        current_user = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
         log(f"Getting about page for user={current_user}")
         page = add_authorized_effects(page, current_user)
     except (MissingTokenError, JWTDecodeError):
@@ -86,12 +88,12 @@ async def about_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
 
 
 @app.get("/news", response_class=HTMLResponse)
-async def news_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
+async def news_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
     log("Getting news page request")
     page = pages_dict["news.html"]
     try:
-        Authorize.jwt_required()
-        current_user = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
         log(f"Getting news page for user={current_user}")
         page = add_authorized_effects(page, current_user)
     except (MissingTokenError, JWTDecodeError):
@@ -101,27 +103,29 @@ async def news_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
 
 
 @app.get("/admin_panel")
-async def admin_panel_page(Authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+async def admin_panel_page(authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
     log("Getting admin panel page request")
     page = pages_dict["admin_panel.html"]
     try:
-        Authorize.jwt_required()
-        current_user = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
         if current_user == "admin":
+            log("User is admin, getting admin panel")
             page = add_authorized_effects(page, current_user)
             return HTMLResponse(content=page, status_code=200)
     except (MissingTokenError, JWTDecodeError):
-        pass
+        log("Admin panel request from non-authorized user!")
+    log("User is not admin!")
     return RedirectResponse(url="/login", status_code=303)
 
 
 @app.get("/contacts", response_class=HTMLResponse)
-async def contacts_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
+async def contacts_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
     log("Getting contacts page request")
     page = pages_dict["contacts.html"]
     try:
-        Authorize.jwt_required()
-        current_user = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
         log(f"Getting contacts page for user={current_user}")
         page = add_authorized_effects(page, current_user)
     except (MissingTokenError, JWTDecodeError):
@@ -145,11 +149,11 @@ async def signup_page(message: str) -> HTMLResponse:
 
 
 @app.get("/add_to_basket/product={product_id}", response_class=RedirectResponse)
-async def add_to_basket(product_id: str, Authorize: AuthJWT = Depends()) -> RedirectResponse:
+async def add_to_basket(product_id: str, authorize: AuthJWT = Depends()) -> RedirectResponse:
     log(f"Adding product to basket request with product_id={product_id}")
     try:
-        Authorize.jwt_required()
-        current_user = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
         log(f"Adding product for user={current_user}")
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized! Redirecting to login page")
@@ -159,17 +163,17 @@ async def add_to_basket(product_id: str, Authorize: AuthJWT = Depends()) -> Redi
     return RedirectResponse(url="/", status_code=303)
 
 
-@app.get("/test")
+@app.get("/test")  # TODO: REMOVE FOR RELEASE
 async def test_func():
     print(databaseHandler.reserve_items(2, 2))
 
 
 @app.get("/increase_from_basket/product={product_name}", response_class=RedirectResponse)
-async def increase_from_basket(product_name: str, Authorize: AuthJWT = Depends()) -> RedirectResponse:
+async def increase_from_basket(product_name: str, authorize: AuthJWT = Depends()) -> RedirectResponse:
     log(f"Increasing product from basket request with product_name={product_name}")
     try:
-        Authorize.jwt_required()
-        current_user = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
         log(f"Increasing product for user={current_user}")
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized! Redirecting to login page")
@@ -181,11 +185,11 @@ async def increase_from_basket(product_name: str, Authorize: AuthJWT = Depends()
 
 
 @app.get("/decrease_from_basket/product={product_name}", response_class=RedirectResponse)
-async def decrease_from_basket(product_name: str, Authorize: AuthJWT = Depends()) -> RedirectResponse:
+async def decrease_from_basket(product_name: str, authorize: AuthJWT = Depends()) -> RedirectResponse:
     log(f"Decreasing product from basket request with product_name={product_name}")
     try:
-        Authorize.jwt_required()
-        current_user = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
         log(f"Decreasing product for user={current_user}")
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized! Redirecting to login page")
@@ -197,7 +201,7 @@ async def decrease_from_basket(product_name: str, Authorize: AuthJWT = Depends()
 
 @app.post("/auth/login", response_class=RedirectResponse)
 async def login(login_info: LoginForm = Depends(LoginForm.as_form),
-                Authorize: AuthJWT = Depends()) -> RedirectResponse:
+                authorize: AuthJWT = Depends()) -> RedirectResponse:
 
     log(f"Login request: username={login_info.username}")
     success, response_msg = auth_handler.login(login_info.username, login_info.password)
@@ -208,36 +212,47 @@ async def login(login_info: LoginForm = Depends(LoginForm.as_form),
     else:
         log("Creating access and refresh tokens")
         response = RedirectResponse(url="/", status_code=303)
-        access_token = Authorize.create_access_token(subject=login_info.username)
-        refreshed_token = Authorize.create_refresh_token(subject=login_info.username)
-        Authorize.set_access_cookies(access_token, response=response)
-        Authorize.set_refresh_cookies(refreshed_token, response=response)
+        access_token = authorize.create_access_token(subject=login_info.username)
+        refreshed_token = authorize.create_refresh_token(subject=login_info.username)
+        authorize.set_access_cookies(access_token, response=response)
+        authorize.set_refresh_cookies(refreshed_token, response=response)
         log("Redirecting to main page with tokens")
         return response
 
 
 @app.get("/profile")
-async def profile_page(Authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+async def profile_page(authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
     log("Getting profile page request")
     try:
-        Authorize.jwt_required()
-        current_user = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
         log(f"Returning profile page for user={current_user}")
         page = add_authorized_effects(pages_dict["profile.html"], current_user)
-        return HTMLResponse(content=load_profile_page(page, current_user, databaseHandler.get_user_email(current_user), message=None), status_code=200)
+        return HTMLResponse(
+            content=load_profile_page(
+                page, current_user, databaseHandler.get_user_email(current_user), message=None
+            ),
+            status_code=200
+        )
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized! Redirecting to login page")
         return RedirectResponse("/login")
 
 
 @app.get("/profile/result={message}")
-async def profile_page(message: str, Authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+async def profile_page(message: str, authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    log(f"Getting profile page request with message={message}")
     try:
-        Authorize.jwt_required()
-        current_user = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
         log(f"Returning profile page for user={current_user}")
         page = add_authorized_effects(pages_dict["profile.html"], current_user)
-        return HTMLResponse(content=load_profile_page(page, current_user, databaseHandler.get_user_email(current_user), message), status_code=200)
+        return HTMLResponse(
+            content=load_profile_page(
+                page, current_user, databaseHandler.get_user_email(current_user), message
+            ),
+            status_code=200
+        )
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized! Redirecting to login page")
         return RedirectResponse("/login")
@@ -256,45 +271,57 @@ async def signup(signup_info: SignupForm = Depends(SignupForm.as_form)) -> Redir
         return RedirectResponse(f"/signup/result={response_msg}", status_code=303)
 
 
-@app.post("/auth/change_password")
-async def change_password(update_info: ChangePasswordForm = Depends(ChangePasswordForm.as_form), Authorize: AuthJWT = Depends()):
+@app.post("/auth/change_password", response_class=RedirectResponse)
+async def change_password(
+        update_info: ChangePasswordForm = Depends(ChangePasswordForm.as_form),
+        authorize: AuthJWT = Depends()) -> RedirectResponse:
+    log("Changing password request")
     try:
-        Authorize.jwt_required()
-        username = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        username = authorize.get_jwt_subject()
+        log(f"Changing password for user={username}")
     except (MissingTokenError, JWTDecodeError):
+        log("User not authorized!")
         return RedirectResponse("/login", status_code=303)
     success, response_msg = auth_handler.change_password(username, update_info.password)
+    log(f"Changing password: success={success}, response={response_msg}")
     return RedirectResponse(f"/profile/result={response_msg}", status_code=303)
 
 
-@app.post("/auth/change_email")
-async def change_password(update_info: ChangeEmailForm = Depends(ChangeEmailForm.as_form), Authorize: AuthJWT = Depends()):
+@app.post("/auth/change_email", response_class=RedirectResponse)
+async def change_email(
+        update_info: ChangeEmailForm = Depends(ChangeEmailForm.as_form),
+        authorize: AuthJWT = Depends()) -> RedirectResponse:
+    log("Changing email request")
     try:
-        Authorize.jwt_required()
-        username = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        username = authorize.get_jwt_subject()
+        log(f"Changing email for user={username}")
     except (MissingTokenError, JWTDecodeError):
+        log("User not authorized!")
         return RedirectResponse("/login", status_code=303)
     success, response_msg = auth_handler.change_email(username, update_info.email)
+    log(f"Changing email: success={success}, response_msg={response_msg}")
     return RedirectResponse(f"/profile/result={response_msg}", status_code=303)
 
 
 @app.get("/refresh_token")
-async def refresh_token(Authorize: AuthJWT = Depends()):
+async def refresh_token(authorize: AuthJWT = Depends()):
     log("Refreshing token request")
-    Authorize.jwt_refresh_token_required()
-    current_user = Authorize.get_jwt_subject()
-    new_access_token = Authorize.create_access_token(subject=current_user)
-    Authorize.set_access_cookies(new_access_token)
+    authorize.jwt_refresh_token_required()
+    current_user = authorize.get_jwt_subject()
+    new_access_token = authorize.create_access_token(subject=current_user)
+    authorize.set_access_cookies(new_access_token)
     return {}
 
 
 @app.get('/auth/logout', response_class=RedirectResponse)
-def logout(Authorize: AuthJWT = Depends()) -> RedirectResponse:
+def logout(authorize: AuthJWT = Depends()) -> RedirectResponse:
     log("Logout request")
     response = RedirectResponse(url="/", status_code=303)
     try:
-        Authorize.jwt_required()
-        Authorize.unset_jwt_cookies(response)
+        authorize.jwt_required()
+        authorize.unset_jwt_cookies(response)
         log("JWT was deleted from cookie")
     except (MissingTokenError, JWTDecodeError):
         log("JWT was not found in cookie!")
@@ -303,11 +330,11 @@ def logout(Authorize: AuthJWT = Depends()) -> RedirectResponse:
 
 
 @app.get('/basket')
-def basket_page(Authorize: AuthJWT = Depends()) -> RedirectResponse or HTMLResponse:
+def basket_page(authorize: AuthJWT = Depends()) -> RedirectResponse or HTMLResponse:
     log("Basket page request")
     try:
-        Authorize.jwt_required()
-        username = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        username = authorize.get_jwt_subject()
         log(f"Basket page request from authorized user: username={username}")
         page = add_authorized_effects(pages_dict["basket.html"], username)
     except (MissingTokenError, JWTDecodeError):
@@ -322,13 +349,13 @@ def basket_page(Authorize: AuthJWT = Depends()) -> RedirectResponse or HTMLRespo
 
 
 @app.get("/", response_class=HTMLResponse)
-async def main_page(Authorize: AuthJWT = Depends()) -> HTMLResponse:
+async def main_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
     log("Main page request")
     page = pages_dict.get("index.html")
     product_col_rows = databaseHandler.get_product_cols()
     try:
-        Authorize.jwt_required()
-        username = Authorize.get_jwt_subject()
+        authorize.jwt_required()
+        username = authorize.get_jwt_subject()
         is_authorized = True
         log(f"Main page request from authorized user: username={username}")
         page = add_authorized_effects(page, username)

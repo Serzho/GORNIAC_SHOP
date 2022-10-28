@@ -1,7 +1,3 @@
-import sys
-
-sys.path.append("../../core")
-
 from sqlalchemy import Column, Integer, VARCHAR, Boolean, Date, JSON
 from core.database.init_database import Base
 from datetime import date
@@ -23,9 +19,9 @@ class User(Base):
     reservations = Column("reservations", JSON)
     email = Column("email", VARCHAR(64))
 
-    def __init__(self, name: str, total_purchased: int, is_active: bool,
-                 hashed_password: str, is_banned: bool, ban_description: str or None, reg_date: date,
-                 last_reservation_date: date or None, promo_codes: json or None, reservations: json or None, email: str):
+    def __init__(self, name: str, total_purchased: int, is_active: bool, hashed_password: str, is_banned: bool,
+                 ban_description: str or None, reg_date: date, last_reservation_date: date or None,
+                 promo_codes: json or None, reservations: json or None, email: str):
         self.name = name
         self.total_purchased = total_purchased
         self.is_active = is_active

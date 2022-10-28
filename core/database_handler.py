@@ -24,22 +24,26 @@ class DatabaseHandler:
         log("Database handler initialized")
 
     def change_user_password(self, username: str, hashed_password: str) -> None:
+        log(f"Changing password for user={username}")
         user = self.__session.query(User).filter(User.name == username).first()
         try:
             user.hashed_password = hashed_password
             self.__session.commit()
+            log("User password was changed")
         except Exception as e:
-            print(f"UNKNOWN ERROR: {e}")
+            log(f"UNKNOWN ERROR: {e}")
 
     def change_user_email(self, username: str, email: str) -> None:
+        log(f"Changing email for user={username}")
         user = self.__session.query(User).filter(User.name == username).first()
         try:
             user.email = email
             self.__session.commit()
+            log("User email was changed")
         except Exception as e:
-            print(f"UNKNOWN ERROR: {e}")
+            log(f"UNKNOWN ERROR: {e}")
 
-    def email_exist(self, email: str):
+    def email_exist(self, email: str) -> bool:
         return bool(self.__session.query(User.email).filter(User.email == email).count())
 
     def username_exist(self, username: str) -> bool:
@@ -57,18 +61,22 @@ class DatabaseHandler:
             log(f"UNKNOWN ERROR: {e}")
             return False, e
 
-    def reserve_items(self, product_id: int, amount: int):
+    def reserve_items(self, product_id: int, amount: int) -> list:
+        log(f"Reserve {amount} items of product with id={product_id}")
         reserved_list = []
         items = self.__session.query(Item).filter(
             Item.product_id == product_id, Item.is_reserved.is_not(True)
         ).order_by(Item.manufacture_date).limit(amount).all()
         for item in items:
             try:
+                log(f"Trying to reserve item with id={item.item_id}")
                 item.is_reserved = True
                 self.__session.commit()
                 reserved_list.append(item.item_id)
+                log(f"Item with id={item.item_id} was reserved")
             except Exception as e:
-                print(f"UNKNOWN ERROR: {e}")
+                log(f"UNKNOWN ERROR: {e}")
+        log(f"Returning reserved list with {len(reserved_list)} items")
         return reserved_list
 
     def get_product_id(self, product_name: str) -> int:
@@ -122,12 +130,18 @@ class DatabaseHandler:
         ).first().amount_items
 
     def order_exist(self, order_name: str) -> bool:
-        return bool(self.__session.query(Reservation.reservation_name).filter(Reservation.reservation_name == order_name).count())
+        return bool(
+            self.__session.query(
+                Reservation.reservation_name
+            ).filter(Reservation.reservation_name == order_name).count()
+        )
 
     def get_user_id(self, username: str) -> int:
         return self.__session.query(User.user_id, User.name).filter(User.name == username).first().user_id
 
-    def add_order(self, username: str, order_name: str, product_id: int, amount: int, sale: int, price: int, reserved_dict: dict) -> (bool, str):
+    def add_order(
+            self, username: str, order_name: str, product_id: int, amount: int, sale: int, price: int,
+            reserved_dict: dict) -> (bool, str):
         log("Adding order to database")
         try:
             order = Reservation(
@@ -155,9 +169,11 @@ class DatabaseHandler:
         return self.__session.query(User.email, User.name).filter(User.name == username).first().email
 
     def refresh_amount_items(self, product_id: int):
+        log(f"Refreshing amount items for product with id={product_id}")
         product = self.__session.query(Product).filter(Product.product_id == product_id).first()
         try:
             product.amount_items = self.__session.query(Item.is_reserved).filter(Item.is_reserved.is_not(True)).count()
             self.__session.commit()
+            log(f"Amount items for product with id={product_id} was refreshed")
         except Exception as e:
-            print(f"UNKNOWN ERROR: {e}")
+            log(f"UNKNOWN ERROR: {e}")

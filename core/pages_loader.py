@@ -1,12 +1,14 @@
 from service import base_logger
 
+# TODO: БАГ: НЕ РАБОТАЮТ ИКОНКИ НА СТРАНИЦЫ ПРОФИЛЯ
+
 
 def log(message: str) -> None:
     base_logger(msg=message, module_name="PAGESLOADER")
 
 
 def load_profile_page(profile_html: str, username: str, email: str, message: str or None) -> str:
-    log(f"Loading profile page for username {username}")
+    log(f"Loading profile page: user={username}, email={email}, message={message}")
     profile_html = profile_html.replace("<p><strong>Имя:</strong>", f"<p><strong>Имя:</strong> {username}")
     profile_html = profile_html.replace('placeholder=""', f'placeholder="{email}"')
     if message is not None:
@@ -33,9 +35,11 @@ def load_login_page(login_html: str, message: str) -> str:
 
 
 def add_authorized_effects(page_html: str, username: str) -> str:
+    log(f"Adding authorized effects to page for user={username}")
     page_html = page_html.replace(
         '<div class="header__icons">',
-        f'<div class="header__icons"><a href="auth/logout" class="header__link"><img src="static/images/logout.png" alt="" height="41px" width="41px"> </a> '
+        f'<div class="header__icons"><a href="auth/logout" class="header__link"><img src="static/images/logout.png" '
+        f'alt="" height="41px" width="41px"> </a> '
     )
     page_html = page_html.replace(
         '</nav>',
@@ -163,7 +167,6 @@ def load_main_page(index_html: str, products: list[dict], is_authorized: bool = 
             '<div class="product__date">',
             f'<div class="product__date">{row["dev_date"]}'
         )
-
 
         product_cols.append(product_col)
         modals.append(modal)

@@ -1,63 +1,67 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <title>ВАШ ПРОФИЛЬ</title>
     <link rel="shortcut icon" href="static/images/favicon.ico" type="image/x-icon">
 </head>
 <link href="/static/css/style.css" rel="stylesheet">
-        <link
-            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;0,700;1,300&display=swap"
-            rel="stylesheet">
-<body>
-<!-- Header -->
-        <header>
-            <div class="container">
-                <div class="header__inner">
-                    <div class="header__content">
-                        <div class="header__name">
-                            <h1 >gorniac</h1>
-                        </div>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;0,700;1,300&display=swap"
+    rel="stylesheet">
 
-                        <nav class="nav" id="nav">
-                            <a href="/" class="nav__link"> каталог </a>
-                            <a href="/about" class="nav__link"> о компании</a>
-                            <a href="/news" class="nav__link"> новости</a>
-                            <a href="/contacts" class="nav__link"> контакты</a>
-                        </nav>
-                        <div class="header__icons">
-                            <a href="/profile" class="header__link"><img src="static/images/profile.png"
-                                alt="" height="41px" width="41px"> </a>
-                            <a href="/basket" class="header__link"><img src="static/images/basket.png" alt=""
-                                height="41px" width="41px"></a>
-                        </div>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header__inner">
+                <div class="header__content">
+                    <div class="header__name">
+                        <h1>gorniac</h1>
+                    </div>
+
+                    <nav class="nav" id="nav">
+                        <a href="/" class="nav__link"> каталог </a>
+                        <a href="/about" class="nav__link"> о компании</a>
+                        <a href="/news" class="nav__link"> новости</a>
+                        <a href="/contacts" class="nav__link"> контакты</a>
+                    </nav>
+                    <div class="header__icons">
+                        <a href="/profile" class="header__link"><img src="static/images/profile.png" alt=""
+                                height="41px" width="41px"> </a>
+                        <a href="/basket" class="header__link"><img src="static/images/basket.png" alt="" height="41px"
+                                width="41px"></a>
                     </div>
                 </div>
             </div>
-        </header>
-        <div class="tabs">
-      <input type="radio" name="tab-btn" id="tab-btn-1" value="" checked>
-      <label for="tab-btn-1">Личные данные</label>
-      <input type="radio" name="tab-btn" id="tab-btn-2" value="">
-      <label for="tab-btn-2">Заказы</label>
-      <div id="content-1">
-          <p><strong>Имя:</strong></p>
+        </div>
+    </header>
+    <div class="tabs">
+        <input type="radio" name="tab-btn" id="tab-btn-1" value="" checked>
+        <label for="tab-btn-1">Личные данные</label>
+        <input type="radio" name="tab-btn" id="tab-btn-2" value="">
+        <label for="tab-btn-2">Заказы</label>
+        <div id="content-1">
+            <p><strong>Имя:</strong></p>
             <form action="../auth/change_password" method="post">
-           <p><strong>Пароль:</strong>
-               <input type="password" maxlength="25" size="40" name="password" readonly
-    onfocus="this.removeAttribute('readonly')"></p>
+                <p><strong>Пароль:</strong>
+                    <input type="password" maxlength="25" size="40" name="password" readonly
+                        onfocus="this.removeAttribute('readonly')">
+                </p>
                 <input type="submit" value="Сохранить пароль" />
             </form>
-          <form action="../auth/change_email" method="post">
-           <p><strong>Почта:</strong>
-            <input maxlength="64" size="40" name="email" placeholder="" readonly
-    onfocus="this.removeAttribute('readonly')"></p>
-              <input type="submit" value="Сохранить почту" />
-  </form>
-      </div>
-      <div id="content-2">
-        Содержимое 2...
-      </div>
+            <form action="../auth/change_email" method="post">
+                <p><strong>Почта:</strong>
+                    <input maxlength="64" size="40" name="email" placeholder="" readonly
+                        onfocus="this.removeAttribute('readonly')">
+                </p>
+                <input type="submit" value="Сохранить почту" />
+            </form>
+        </div>
+        <div id="content-2">
+            Содержимое 2...
+        </div>
     </div>
 </body>
+
 </html>

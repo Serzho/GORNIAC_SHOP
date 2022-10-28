@@ -3,7 +3,7 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from core.service import base_logger
-from cfg import DB_USER, DB_PASSWORD, DB_DIALECT, DB_DRIVER, HOST_DB, DB_NAME, ECHO_FLAG, PORT_DB
+from cfg import DB_USER, DB_PASSWORD, DB_DIALECT, DB_DRIVER, HOST_DB, DB_NAME, ECHO_FLAG
 from psycopg2 import OperationalError as ps2OperationalError
 Base = declarative_base()
 
@@ -23,6 +23,6 @@ def load_session() -> Session:
     except (OperationalError, ps2OperationalError):
         log("BASE CONNECTION ERROR!!!")
         raise
-
+    log("Base connected!")
     log("Returning session")
     return Session(bind=engine)

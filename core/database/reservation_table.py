@@ -7,7 +7,7 @@ class Reservation(Base):
     __tablename__ = 'reservation'
     reservation_id = Column("reservation_id", Integer, primary_key=True, autoincrement=True)
     reservation_date = Column("reservation_date", Date)
-    user_id = Column("user_id", Integer) # TODO: исправить костыль c ключами!!!!
+    user_id = Column("user_id", Integer)  # TODO: исправить костыль c ключами!!!!
     reservation_name = Column("reservation_name", VARCHAR(32))
     product_id = Column("product_id", SmallInteger, ForeignKey("product.product_id"))
     amount = Column("amount", SmallInteger)

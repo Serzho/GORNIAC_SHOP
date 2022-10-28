@@ -32,10 +32,6 @@ class ChangeEmailForm(BaseModel):
         return cls(email=email)
 
 
-class SignupPageRequest(BaseModel):
-    message: str | None
-
-
 class SignupForm(BaseModel):
     username: str
     password: str
