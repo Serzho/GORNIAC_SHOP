@@ -173,7 +173,27 @@ class DatabaseHandler:
         product = self.__session.query(Product).filter(Product.product_id == product_id).first()
         try:
             product.amount_items = self.__session.query(Item.is_reserved).filter(Item.is_reserved.is_not(True)).count()
+            if product.amount_items == 0:
+                product.is_active = False
             self.__session.commit()
             log(f"Amount items for product with id={product_id} was refreshed")
+        except Exception as e:
+            log(f"UNKNOWN ERROR: {e}")
+
+    def register_order(self, order_name: str, username: str) -> None:
+        log(f"Register order={order_name} to user={username}")
+        user = self.__session.query(User).filter(User.name == username).first()
+        try:
+            user.last_reservation_date = date.today()
+            reservations = user.reservations
+            next_index = 1
+            if reservations is not None:
+                next_index += max(reservations.keys())
+            else:
+                reservations = {}
+            reservations.update({next_index: order_name})
+            user.reservations = reservations
+            self.__session.commit()
+            log(f"Order {order_name} was registered for user={username}")
         except Exception as e:
             log(f"UNKNOWN ERROR: {e}")

@@ -92,6 +92,7 @@ class BasketHandler:
             else:
                 number += 1
         log(f"Order for user {username}: title={order_name}")
+        self.database_handler.register_order(order_name, username)
         for product_name, product_chars in product_list.items():
             product_id = self.database_handler.get_product_id(product_name)
             reserved_list = self.database_handler.reserve_items(
@@ -104,3 +105,7 @@ class BasketHandler:
                 username, order_name, product_id, product_chars["amount"], 0, product_chars["price"], reserved_dict
             )
             log(f"Order={order_name}: product={product_name}, success={success}, msg={response_msg}")
+
+    def get_orders_list(self, username: str) -> list:
+        pass
+

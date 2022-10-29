@@ -45,9 +45,9 @@ class Auth:
         log("Creating admin")
         if not self.databaseHandler.username_exist("admin"):
             while True:
-                print("Please, enter admin password: \n")
+                print("Please, enter admin password: ")
                 password = input()
-                print("Please, enter email password: \n")
+                print("Please, enter admin email: ")
                 email = input()
                 success, msg = self.sign_up("admin", password, email)
                 if success:
