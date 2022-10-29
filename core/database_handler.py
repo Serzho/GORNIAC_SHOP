@@ -197,3 +197,33 @@ class DatabaseHandler:
             log(f"Order {order_name} was registered for user={username}")
         except Exception as e:
             log(f"UNKNOWN ERROR: {e}")
+
+    def get_user_orders(self, username: str) -> dict:
+        return self.__session.query(User.name, User.reservations).filter(username == User.name).first().reservations
+
+    def get_product_name(self, product_id: int) -> str:
+        return self.__session.query(
+            Product.product_id, Product.product_name
+        ).filter(product_id == Product.product_id).first().product_name
+
+    def get_order_dict_for_history(self, order_name: str) -> dict:
+        reservs = self.__session.query(
+            Reservation.reservation_date,
+            Reservation.reservation_name,
+            Reservation.product_id,
+            Reservation.amount,
+            Reservation.is_completed,
+            Reservation.total
+        ).filter(Reservation.reservation_name == order_name)
+        order_dict = {
+            "name": order_name, "date": reservs.first().reservation_date, "is_completed": reservs.first().is_completed
+        }
+        products = {}
+        i, total_price = 0, 0
+        for el in reservs:
+            i += 1
+            products.update({i: {"product_name": self.get_product_name(el.product_id), "price": el.total, "amount": el.amount, "total": el.total}})
+            total_price += el.total
+        order_dict.update({"products": products, "total_price": total_price})
+        # print(order_dict)
+        return order_dict

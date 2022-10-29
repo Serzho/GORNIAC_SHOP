@@ -165,7 +165,7 @@ async def add_to_basket(product_id: str, authorize: AuthJWT = Depends()) -> Redi
 
 @app.get("/test")  # TODO: REMOVE FOR RELEASE
 async def test_func():
-    print(databaseHandler.reserve_items(2, 2))
+    print(basket_handler.get_orders_list("admin"))
 
 
 @app.get("/increase_from_basket/product={product_name}", response_class=RedirectResponse)
@@ -228,7 +228,7 @@ async def profile_page(authorize: AuthJWT = Depends()) -> HTMLResponse or Redire
         current_user = authorize.get_jwt_subject()
         log(f"Returning profile page for user={current_user}")
         page = add_authorized_effects(pages_dict["profile.html"], current_user)
-        orders_list = []
+        orders_list = basket_handler.get_orders_list(current_user)
         return HTMLResponse(
             content=load_profile_page(
                 page, current_user, databaseHandler.get_user_email(current_user), None, orders_list
@@ -248,7 +248,7 @@ async def profile_page(message: str, authorize: AuthJWT = Depends()) -> HTMLResp
         current_user = authorize.get_jwt_subject()
         log(f"Returning profile page for user={current_user}")
         page = add_authorized_effects(pages_dict["profile.html"], current_user)
-        orders_list = []
+        orders_list = basket_handler.get_orders_list(current_user)
         return HTMLResponse(
             content=load_profile_page(
                 page, current_user, databaseHandler.get_user_email(current_user), message, orders_list

@@ -107,5 +107,10 @@ class BasketHandler:
             log(f"Order={order_name}: product={product_name}, success={success}, msg={response_msg}")
 
     def get_orders_list(self, username: str) -> list:
-        pass
+        orders_names = self.database_handler.get_user_orders(username)
+        orders_list = []
+        for index, name in orders_names.items():
+            orders_list.append(self.database_handler.get_order_dict_for_history(name))
+        return orders_list
+
 
