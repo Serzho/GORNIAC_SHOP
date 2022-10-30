@@ -18,13 +18,12 @@ def load_profile_page(profile_html: str, username: str, email: str, message: str
         product_table = ''
         for index, product in order["products"].items():
             product_table += f"<p>{product['product_name']}: {product['amount']} * {product['price']} = {product['total']}</p>"
-        if order["is_completed"]:
-            completed = "да"
-        else:
-            completed = "нет"
+        completed = "да" if order["is_completed"] else "нет"
         profile_html = profile_html.replace(
             '<div id="content-2">',
-            f'<div id="content-2">Заказ {order["name"]} от {order["date"]}: {product_table} <p> ИТОГО: {order["total_price"]}</p><p>Выполнен: {completed}</p>')
+            f'<div id="content-2">'
+            f'Заказ {order["name"]} от {order["date"]}:'
+            f' {product_table} <p> ИТОГО: {order["total_price"]}</p><p>Выполнен: {completed}</p>')
 
     return profile_html
 

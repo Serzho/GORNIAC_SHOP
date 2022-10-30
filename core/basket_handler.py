@@ -109,8 +109,7 @@ class BasketHandler:
     def get_orders_list(self, username: str) -> list:
         orders_names = self.database_handler.get_user_orders(username)
         orders_list = []
-        for index, name in orders_names.items():
-            orders_list.append(self.database_handler.get_order_dict_for_history(name))
+        if orders_names is not None:
+            for index, name in orders_names.items():
+                orders_list.append(self.database_handler.get_order_dict_for_history(name))
         return orders_list
-
-

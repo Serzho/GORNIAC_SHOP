@@ -8,7 +8,7 @@ from database.product_table import Product
 from database.item_table import Item
 from datetime import date
 from core.service import base_logger
-
+from sqlalchemy.orm.attributes import flag_modified
 
 def log(message: str) -> None:
     module_name = "DBHANDLER"
@@ -172,7 +172,9 @@ class DatabaseHandler:
         log(f"Refreshing amount items for product with id={product_id}")
         product = self.__session.query(Product).filter(Product.product_id == product_id).first()
         try:
-            product.amount_items = self.__session.query(Item.is_reserved).filter(Item.is_reserved.is_not(True)).count()
+            product.amount_items = self.__session.query(
+                Item.is_reserved, Item.product_id
+            ).filter(Item.is_reserved.is_not(True), Item.product_id == product_id).count()
             if product.amount_items == 0:
                 product.is_active = False
             self.__session.commit()
@@ -188,11 +190,13 @@ class DatabaseHandler:
             reservations = user.reservations
             next_index = 1
             if reservations is not None:
-                next_index += max(reservations.keys())
+                next_index += max(list(map(int, reservations.keys())))
             else:
                 reservations = {}
             reservations.update({next_index: order_name})
             user.reservations = reservations
+            flag_modified(user, "reservations")
+            self.__session.add(user)
             self.__session.commit()
             log(f"Order {order_name} was registered for user={username}")
         except Exception as e:
@@ -222,8 +226,12 @@ class DatabaseHandler:
         i, total_price = 0, 0
         for el in reservs:
             i += 1
-            products.update({i: {"product_name": self.get_product_name(el.product_id), "price": el.total, "amount": el.amount, "total": el.total}})
+            products.update({i: {
+                "product_name": self.get_product_name(el.product_id),
+                "price": el.total,
+                "amount": el.amount,
+                "total": el.total
+            }})
             total_price += el.total
         order_dict.update({"products": products, "total_price": total_price})
-        # print(order_dict)
         return order_dict
