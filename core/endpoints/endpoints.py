@@ -11,6 +11,7 @@ from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import MissingTokenError, JWTDecodeError
 from core.auth_handler import Auth
 from core.basket_handler import BasketHandler
+from core.email_handler import EmailHandler
 
 
 pages_dict = upload_pages()
@@ -18,7 +19,8 @@ databaseHandler = DatabaseHandler()
 app = FastAPI()
 auth_handler = Auth(databaseHandler)
 order_dict = {}
-basket_handler = BasketHandler(databaseHandler)
+email_handler = EmailHandler()
+basket_handler = BasketHandler(databaseHandler, email_handler)
 
 
 def log(message: str) -> None:

@@ -1,6 +1,7 @@
 from datetime import datetime
 from core.service import base_logger
 from database_handler import DatabaseHandler
+from email_handler import EmailHandler
 
 
 def log(message: str) -> None:
@@ -13,11 +14,13 @@ def log(message: str) -> None:
 
 class BasketHandler:
     basket_dict: dict
-    database_handler = None
+    database_handler: DatabaseHandler
+    email_handler: EmailHandler
 
-    def __init__(self, database_handler: DatabaseHandler):
+    def __init__(self, database_handler: DatabaseHandler, email_handler: EmailHandler):
         self.basket_dict = {}
         self.database_handler = database_handler
+        self.email_handler = email_handler
         log("Basket handler initialized")
 
     def get_basket_list(self, name: str) -> dict:
@@ -92,6 +95,7 @@ class BasketHandler:
             else:
                 number += 1
         log(f"Order for user {username}: title={order_name}")
+        self.email_handler.send_order_email(order_name, username, self.database_handler.get_user_email(username))
         self.database_handler.register_order(order_name, username)
         for product_name, product_chars in product_list.items():
             product_id = self.database_handler.get_product_id(product_name)

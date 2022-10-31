@@ -18,3 +18,8 @@ LOGFILE_PATH = "log.txt"
 ECHO_FLAG = False
 SECRET_JWT = "GORNIYBODRIY"
 JWT_LOCATION = {"cookies"}
+
+EMAIL_HOST = "smtp.mail.ru"
+EMAIL = "kudrsv.kudrsv@mail.ru"
+EMAIL_PORT = 465
+EMAIL_PASS = "DB4rppxQy8buS3EUJ3rV"
