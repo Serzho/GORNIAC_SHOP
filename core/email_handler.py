@@ -33,6 +33,20 @@ class EmailHandler:
             log(str(e))
             return False
 
+    def send_ban_email(self, ban_description: str, username: str, receiver_email: str):
+        log(f"Sending ban email: username={username}, ban_description={ban_description} to email={receiver_email}")
+        try:
+            self.server = smtplib.SMTP_SSL(EMAIL_HOST)
+            self.server.login(self.email, self.password)
+            self.server.auth_plain()
+            mail_text = f"GORNIAC SHOP \nHi, {username}!\nU was banned by reason: {ban_description}"
+            self.server.sendmail(self.email, receiver_email, mail_text)
+            log(f"Correct sending ban email: {username}")
+            return True
+        except Exception as e:
+            log(str(e))
+            return False
+
 
 if __name__ == "__main__":
     email_handler = EmailHandler()

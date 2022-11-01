@@ -34,6 +34,35 @@ def get_config() -> Settings:
     return Settings()
 
 
+@app.post("/admin_panel/adding_item")
+async def adding_item(
+        item_info: AdminAddingItemForm = Depends(AdminAddingItemForm.as_form),
+        authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    try:
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
+        assert current_user == "admin"
+    except (MissingTokenError, JWTDecodeError, AssertionError):
+        return RedirectResponse("/login")
+    databaseHandler.add_item(item_info.product_id, item_info.count)
+    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+
+
+@app.post("/admin_panel/ban_user")
+async def ban_user(
+        ban_info: AdminBanUserForm = Depends(AdminBanUserForm.as_form),
+        authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    try:
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
+        assert current_user == "admin"
+    except (MissingTokenError, JWTDecodeError, AssertionError):
+        return RedirectResponse("/login")
+
+    databaseHandler.ban_user(ban_info.user_id, ban_info.ban_description)
+    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+
+
 @app.get("/login", response_class=HTMLResponse)
 async def login_page() -> HTMLResponse:
     log("Getting login page request")
@@ -142,6 +171,12 @@ async def signup_page() -> HTMLResponse:
     return HTMLResponse(content=pages_dict["signup.html"], status_code=200)
 
 
+@app.get("/ban", response_class=HTMLResponse)
+async def ban_page() -> HTMLResponse:
+    log("Getting ban page request")
+    return HTMLResponse(content=pages_dict["ban_page.html"], status_code=200)
+
+
 @app.get("/signup{message}", response_class=HTMLResponse)
 async def signup_page(message: str) -> HTMLResponse:
     log(f"Getting signup page with message={message}")
@@ -211,6 +246,8 @@ async def login(login_info: LoginForm = Depends(LoginForm.as_form),
         success, response_msg = False, "Username or password is empty!"
     log(f"Login result: success={success}, response_msg={response_msg}")
     if not success:
+        if response_msg == "BAN":
+            return RedirectResponse("/ban", status_code=303)
         log("Redirecting to login page")
         return RedirectResponse(f"/login{response_msg}", status_code=303)
     else:

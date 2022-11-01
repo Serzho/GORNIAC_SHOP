@@ -11,6 +11,24 @@
     <link rel="shortcut icon" href="static/images/favicon.ico" type="image/x-icon">
 </head>
 
-<body> ADMIN PANEL</body>
+<body>
+<h1>ADMIN PANEL</h1>
+<h2> ДОБАВЛЕНИЕ ЭКЗЕМПЛЯРОВ </h2>
+  <form action="/admin_panel/adding_item" method="post">
+   <p><strong>PRODUCT_ID:</strong>
+    <input maxlength="3" size="40" name="product_id"></p>
+   <p><strong>COUNT:</strong>
+       <input maxlength="3" size="40" name="count"></p>
+      <input type="submit" value="Добавить" />
+  </form>
+<h2> БАН ПОЛЬЗОВАТЕЛЕЙ </h2>
+  <form action="/admin_panel/ban_user" method="post">
+   <p><strong>USER_ID:</strong>
+    <input maxlength="3" size="40" name="user_id"></p>
+   <p><strong>BAN_DESCRIPTION:</strong>
+       <input maxlength="64" size="80" name="ban_description"></p>
+      <input type="submit" value="Забанить" />
+  </form>
+</body>
 
 </html>

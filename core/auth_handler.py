@@ -93,6 +93,8 @@ class Auth:
         if not self.databaseHandler.username_exist(username):
             log(f"User with name {username} doesn't exists!")
             return False, f"User with name {username} doesn't exists!"
+        elif self.databaseHandler.check_ban_user(username):
+            return False, "BAN"
         elif self.databaseHandler.get_user(username)["hashed_password"] == self.hash_password(password):
             log(f"Correct authentication user with name={username}")
             return True, "Correct authentication"
