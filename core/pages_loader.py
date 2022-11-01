@@ -1,7 +1,5 @@
 from service import base_logger
 
-# TODO: БАГ: НЕ РАБОТАЮТ ИКОНКИ НА СТРАНИЦЫ ПРОФИЛЯ
-
 
 def log(message: str) -> None:
     base_logger(msg=message, module_name="PAGESLOADER")
@@ -9,7 +7,7 @@ def log(message: str) -> None:
 
 def load_profile_page(profile_html: str, username: str, email: str, message: str or None,
                       orders: list[dict] or None) -> str:
-    log(f"Loading profile page: user={username}, email={email}, message={message}")
+    log(f"Loading profile page: user={username}, email={email}, message={message} and {len(orders)} orders")
     profile_html = profile_html.replace("<p><strong>Имя:</strong>", f"<p><strong>Имя:</strong> {username}")
     profile_html = profile_html.replace('placeholder=""', f'placeholder="{email}"')
     if message is not None:

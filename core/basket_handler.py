@@ -9,9 +9,6 @@ def log(message: str) -> None:
     base_logger(msg=message, module_name=module_name)
 
 
-# TODO: БАГ: после неправильного заказа пустая страница
-# TODO: БАГ: не обновилось количество товара и не перешло в разряд проданного
-
 class BasketHandler:
     basket_dict: dict
     database_handler: DatabaseHandler
@@ -111,7 +108,9 @@ class BasketHandler:
             log(f"Order={order_name}: product={product_name}, success={success}, msg={response_msg}")
 
     def get_orders_list(self, username: str) -> list:
+        log(f"Getting orders list for user={username}")
         orders_names = self.database_handler.get_user_orders(username)
+        log(f"Found {len(orders_names)} for user={username}")
         orders_list = []
         if orders_names is not None:
             for index, name in orders_names.items():

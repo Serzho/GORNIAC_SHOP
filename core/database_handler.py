@@ -10,6 +10,7 @@ from datetime import date
 from core.service import base_logger
 from sqlalchemy.orm.attributes import flag_modified
 
+
 def log(message: str) -> None:
     module_name = "DBHANDLER"
     base_logger(msg=message, module_name=module_name)
@@ -168,7 +169,7 @@ class DatabaseHandler:
     def get_user_email(self, username: str) -> str:
         return self.__session.query(User.email, User.name).filter(User.name == username).first().email
 
-    def refresh_amount_items(self, product_id: int):
+    def refresh_amount_items(self, product_id: int) -> None:
         log(f"Refreshing amount items for product with id={product_id}")
         product = self.__session.query(Product).filter(Product.product_id == product_id).first()
         try:
@@ -211,6 +212,7 @@ class DatabaseHandler:
         ).filter(product_id == Product.product_id).first().product_name
 
     def get_order_dict_for_history(self, order_name: str) -> dict:
+        log(f"Getting order dict from database: order={order_name}")
         reservs = self.__session.query(
             Reservation.reservation_date,
             Reservation.reservation_name,
@@ -219,6 +221,7 @@ class DatabaseHandler:
             Reservation.is_completed,
             Reservation.total
         ).filter(Reservation.reservation_name == order_name)
+        log(f"Found {len(reservs)} for order={order_name}")
         order_dict = {
             "name": order_name, "date": reservs.first().reservation_date, "is_completed": reservs.first().is_completed
         }
@@ -234,4 +237,5 @@ class DatabaseHandler:
             }})
             total_price += el.total
         order_dict.update({"products": products, "total_price": total_price})
+        log("Returning order dict")
         return order_dict

@@ -154,7 +154,8 @@ h1 {
 .catalog {
     display: flex;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: flex-start;
+    flex-wrap: wrap;
     margin-top: 3rem;
     margin-left: -1rem;
     margin-right: -1rem;
@@ -164,7 +165,7 @@ h1 {
 .catalog__col {
     display: flex;
     justify-content: center;
-    flex-basis: 33.3%;
+    flex-basis: 30%;
     padding: 1rem;
     min-width: 360px;
 }
