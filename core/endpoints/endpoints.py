@@ -40,7 +40,7 @@ async def login_page() -> HTMLResponse:
     return HTMLResponse(content=pages_dict["login.html"], status_code=200)
 
 
-@app.get("/login/result={message}", response_class=HTMLResponse)
+@app.get("/login{message}", response_class=HTMLResponse)
 async def login_page(message: str) -> HTMLResponse:
     log(f"Getting login page with message={message}")
     page = pages_dict["login.html"]
@@ -72,7 +72,7 @@ async def order(authorize: AuthJWT = Depends()) -> RedirectResponse:
         return RedirectResponse(url="/good_order", status_code=303)
     else:
         log(f"Order failed: {response_msg}")
-        return RedirectResponse(url=f"/basket/result={response_msg}", status_code=303)
+        return RedirectResponse(url=f"/basket{response_msg}", status_code=303)
 
 
 @app.get("/about", response_class=HTMLResponse)
@@ -142,7 +142,7 @@ async def signup_page() -> HTMLResponse:
     return HTMLResponse(content=pages_dict["signup.html"], status_code=200)
 
 
-@app.get("/signup/result={message}", response_class=HTMLResponse)
+@app.get("/signup{message}", response_class=HTMLResponse)
 async def signup_page(message: str) -> HTMLResponse:
     log(f"Getting signup page with message={message}")
     page = pages_dict["signup.html"]
@@ -204,13 +204,15 @@ async def decrease_from_basket(product_name: str, authorize: AuthJWT = Depends()
 @app.post("/auth/login", response_class=RedirectResponse)
 async def login(login_info: LoginForm = Depends(LoginForm.as_form),
                 authorize: AuthJWT = Depends()) -> RedirectResponse:
-
     log(f"Login request: username={login_info.username}")
-    success, response_msg = auth_handler.login(login_info.username, login_info.password)
+    if login_info.username != "empty" and login_info.password != "empty":
+        success, response_msg = auth_handler.login(login_info.username, login_info.password)
+    else:
+        success, response_msg = False, "Username or password is empty!"
     log(f"Login result: success={success}, response_msg={response_msg}")
     if not success:
         log("Redirecting to login page")
-        return RedirectResponse(f"/login/result={response_msg}", status_code=303)
+        return RedirectResponse(f"/login{response_msg}", status_code=303)
     else:
         log("Creating access and refresh tokens")
         response = RedirectResponse(url="/", status_code=303)
@@ -242,7 +244,7 @@ async def profile_page(authorize: AuthJWT = Depends()) -> HTMLResponse or Redire
         return RedirectResponse("/login")
 
 
-@app.get("/profile/result={message}")
+@app.get("/profile{message}")
 async def profile_page(message: str, authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
     log(f"Getting profile page request with message={message}")
     try:
@@ -265,14 +267,17 @@ async def profile_page(message: str, authorize: AuthJWT = Depends()) -> HTMLResp
 @app.post("/auth/signup", response_class=RedirectResponse)
 async def signup(signup_info: SignupForm = Depends(SignupForm.as_form)) -> RedirectResponse:
     log(f"Signup request: name={signup_info.username}")
-    success, response_msg = auth_handler.sign_up(signup_info.username, signup_info.password, signup_info.email)
+    if signup_info.password != "empty" and signup_info.username != "empty" and signup_info.email != "empty":
+        success, response_msg = auth_handler.sign_up(signup_info.username, signup_info.password, signup_info.email)
+    else:
+        success, response_msg = False, "Empty field!"
     log(f"Signup request result: success={success}, response_msg={response_msg}")
     if success:
         log("Redirecting to login page")
         return RedirectResponse("/login", status_code=303)
     else:
         log("Redirecting to signup page ")
-        return RedirectResponse(f"/signup/result={response_msg}", status_code=303)
+        return RedirectResponse(f"/signup{response_msg}", status_code=303)
 
 
 @app.post("/auth/change_password", response_class=RedirectResponse)
@@ -287,9 +292,12 @@ async def change_password(
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized!")
         return RedirectResponse("/login", status_code=303)
-    success, response_msg = auth_handler.change_password(username, update_info.password)
+    if update_info.password != "empty":
+        success, response_msg = auth_handler.change_password(username, update_info.password)
+    else:
+        success, response_msg = False, "Password is empty!"
     log(f"Changing password: success={success}, response={response_msg}")
-    return RedirectResponse(f"/profile/result={response_msg}", status_code=303)
+    return RedirectResponse(f"/profile{response_msg}", status_code=303)
 
 
 @app.post("/auth/change_email", response_class=RedirectResponse)
@@ -304,9 +312,12 @@ async def change_email(
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized!")
         return RedirectResponse("/login", status_code=303)
-    success, response_msg = auth_handler.change_email(username, update_info.email)
+    if update_info.email != "empty":
+        success, response_msg = auth_handler.change_email(username, update_info.email)
+    else:
+        success, response_msg = False, "Empty email!"
     log(f"Changing email: success={success}, response_msg={response_msg}")
-    return RedirectResponse(f"/profile/result={response_msg}", status_code=303)
+    return RedirectResponse(f"/profile{response_msg}", status_code=303)
 
 
 @app.get("/refresh_token")
@@ -347,7 +358,26 @@ def basket_page(authorize: AuthJWT = Depends()) -> RedirectResponse or HTMLRespo
         return RedirectResponse("/login", status_code=303)
 
     basket_dict = basket_handler.get_basket_list(username)
-    page = load_basket_page(page, username, basket_dict)
+    page = load_basket_page(page, username, basket_dict, None)
+    log("Returning up-to-date basket page")
+    return HTMLResponse(content=page, status_code=200)
+
+
+@app.get('/basket{message}')
+def basket_page(message: str, authorize: AuthJWT = Depends()) -> RedirectResponse or HTMLResponse:
+    log("Basket page request")
+    try:
+        authorize.jwt_required()
+        username = authorize.get_jwt_subject()
+        log(f"Basket page request from authorized user: username={username}")
+        page = add_authorized_effects(pages_dict["basket.html"], username)
+    except (MissingTokenError, JWTDecodeError):
+        log(f"Basket page request from non-authorized user")
+        log("Redirecting to login page")
+        return RedirectResponse("/login", status_code=303)
+
+    basket_dict = basket_handler.get_basket_list(username)
+    page = load_basket_page(page, username, basket_dict, message)
     log("Returning up-to-date basket page")
     return HTMLResponse(content=page, status_code=200)
 

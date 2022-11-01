@@ -60,11 +60,16 @@ def add_authorized_effects(page_html: str, username: str) -> str:
     return page_html
 
 
-def load_basket_page(basket_html: str, name: str, basket_list: dict) -> str:
-    log(f"Updating basket page for user with name={name}")
+def load_basket_page(basket_html: str, name: str, basket_list: dict, message: str or None) -> str:
+    log(f"Updating basket page for user with name={name} with message={message}")
     total = basket_list.get("total")
     products = basket_list.get("products")
     basket_html = basket_html.replace('</body>', f'<h3>{name}</h3></body>')
+    if message is not None:
+        basket_html = basket_html.replace(
+            '<body>',
+            f'<body> <p><font size="5" color="red" face="Arial">{message}</font></p>'
+        )
     for product_name, price_and_amount in products.items():
         price = price_and_amount["price"]
         amount = price_and_amount["amount"]

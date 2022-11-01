@@ -7,12 +7,16 @@ class Request(BaseModel):
     pass
 
 
+class RequestMessage(BaseModel):
+    msg: str
+
+
 class LoginForm(BaseModel):
     username: str
     password: str
 
     @classmethod
-    def as_form(cls, username: str = Form(), password: str = Form()):
+    def as_form(cls, username: str = Form("empty"), password: str = Form("empty")):
         return cls(username=username, password=password)
 
 
@@ -20,7 +24,7 @@ class ChangePasswordForm(BaseModel):
     password: str
 
     @classmethod
-    def as_form(cls, password: str = Form()):
+    def as_form(cls, password: str = Form("empty")):
         return cls(password=password)
 
 
@@ -28,7 +32,7 @@ class ChangeEmailForm(BaseModel):
     email: str
 
     @classmethod
-    def as_form(cls, email: str = Form()):
+    def as_form(cls, email: str = Form("empty")):
         return cls(email=email)
 
 
@@ -38,7 +42,7 @@ class SignupForm(BaseModel):
     email: str
 
     @classmethod
-    def as_form(cls, username: str = Form(), password: str = Form(), email: str = Form()):
+    def as_form(cls, username: str = Form("empty"), password: str = Form("empty"), email: str = Form("empty")):
         return cls(username=username, password=password, email=email)
 
 
