@@ -50,6 +50,33 @@ class DatabaseHandler:
     def get_username(self, user_id: int) -> str:
         return self.__session.query(User.user_id, User.name).filter(User.user_id == user_id).first().name
 
+    def cancel_order(self, order_name: str) -> None:
+        product_list = set()
+        reservs_query = self.__session.query(Reservation).filter(
+            Reservation.reservation_name == order_name, Reservation.is_completed.is_not(True)
+        )
+        user_id = reservs_query.first().user_id
+        user = self.__session.query(User).filter(user_id == User.user_id).first()
+        reserv_index = None
+        for index, reserv_name in user.reservations.items():
+            if reserv_name == order_name:
+                reserv_index = index
+                break
+        user.reservations.pop(reserv_index)
+        flag_modified(user, "reservations")
+        for reserv in reservs_query:
+            for index_item, item_id in reserv.items_reserved.items():
+                item = self.__session.query(Item).filter(Item.item_id == item_id).first()
+                item.is_reserved = False
+                product_list.add(item.product_id)
+            self.__session.delete(reserv)
+        try:
+            self.__session.commit()
+            for product_id in product_list:
+                self.refresh_amount_items(product_id)
+        except Exception as e:
+            print(e)
+
     def cancel_orders_dict(self, reservations: dict) -> None:
         product_list = set()
         for index, reservation_name in reservations.items():
@@ -262,7 +289,7 @@ class DatabaseHandler:
             user.last_reservation_date = date.today()
             reservations = user.reservations
             next_index = 1
-            if reservations is not None:
+            if reservations != {}:
                 next_index += max(list(map(int, reservations.keys())))
             else:
                 reservations = {}

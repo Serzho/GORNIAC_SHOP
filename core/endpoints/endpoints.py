@@ -172,6 +172,23 @@ async def complete_order(
     return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
 
 
+@app.post("/cancel_order{order_name}")
+async def cancel_order(
+        order_name: str,
+        authorize: AuthJWT = Depends()) -> RedirectResponse:
+    try:
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
+        order_name = order_name.replace('.', "#")
+        username_from_order = database_handler.get_user_info_from_order(order_name)["username"]
+        assert current_user == "admin" or current_user == username_from_order
+    except (MissingTokenError, JWTDecodeError, AssertionError):
+        return RedirectResponse("/login")
+
+    database_handler.cancel_order(order_name)
+    return RedirectResponse("/", status_code=303)
+
+
 @app.get("/admin_panel")
 async def admin_panel_page(authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
     log("Getting admin panel page request")

@@ -17,11 +17,16 @@ def load_profile_page(profile_html: str, username: str, email: str, message: str
         for index, product in order["products"].items():
             product_table += f"<p>{product['product_name']}: {product['amount']} * {product['price']} = {product['total']}</p>"
         completed = "да" if order["is_completed"] else "нет"
+        cancel_button = f'<p><form action="/cancel_order{order["name"].replace("#", ".")}"' \
+                        ' method="post"><input type="submit" ' \
+                        'value="ОТМЕНИТЬ"/></form></p>' if not order['is_completed'] else ''
         profile_html = profile_html.replace(
             '<div id="content-2">',
             f'<div id="content-2">'
             f'Заказ {order["name"]} от {order["date"]}:'
-            f' {product_table} <p> ИТОГО: {order["total_price"]}</p><p>Выполнен: {completed}</p>')
+            f' {product_table} <p> ИТОГО: {order["total_price"]}</p><p>Выполнен: {completed}</p>'
+            f'{cancel_button}'
+        )
 
     return profile_html
 
@@ -37,7 +42,9 @@ def load_admin_panel_page(panel_html: str, orders: list[dict] or None) -> str:
             f'Заказ {order["name"]} от {order["date"]} для {order["username"]}, id {order["user_id"]}:'
             f' {product_table} <p> ИТОГО: {order["total_price"]}</p>'
             f'<p><form action="/admin_panel/complete_order{order["name"].replace("#", ".")}" method="post">'
-            f'<input type="submit" value="ВЫПОЛНИТЬ"/></form></p>')
+            f'<input type="submit" value="ВЫПОЛНИТЬ"/></form></p>'
+            f'<p><form action="/cancel_order{order["name"].replace("#", ".")}" method="post">'
+            f'<input type="submit" value="ОТМЕНИТЬ"/></form></p>')
     return panel_html
 
 
