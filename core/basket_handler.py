@@ -110,9 +110,18 @@ class BasketHandler:
     def get_orders_list(self, username: str) -> list:
         log(f"Getting orders list for user={username}")
         orders_names = self.database_handler.get_user_orders(username)
-        log(f"Found {len(orders_names)} for user={username}")
         orders_list = []
         if orders_names is not None:
             for index, name in orders_names.items():
                 orders_list.append(self.database_handler.get_order_dict_for_history(name))
+        return orders_list
+
+    def get_incompleted_orders_list(self) -> list:
+        orders_names = self.database_handler.get_incomplete_orders()
+        orders_list = []
+        if orders_names is not None:
+            for name in orders_names:
+                order_dict = self.database_handler.get_order_dict_for_history(name)
+                order_dict.update(self.database_handler.get_user_info_from_order(name))
+                orders_list.append(order_dict)
         return orders_list

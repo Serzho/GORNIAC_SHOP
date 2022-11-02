@@ -26,6 +26,21 @@ def load_profile_page(profile_html: str, username: str, email: str, message: str
     return profile_html
 
 
+def load_admin_panel_page(panel_html: str, orders: list[dict] or None) -> str:
+    for order in orders[::-1]:
+        product_table = ''
+        for index, product in order["products"].items():
+            product_table += f"<p>{product['product_name']}: {product['amount']} * {product['price']} = {product['total']}</p>"
+        panel_html = panel_html.replace(
+            '<h2> РАБОТА С ЗАКАЗАМИ </h2>',
+            f'<h2> РАБОТА С ЗАКАЗАМИ </h2>'
+            f'Заказ {order["name"]} от {order["date"]} для {order["username"]}, id {order["user_id"]}:'
+            f' {product_table} <p> ИТОГО: {order["total_price"]}</p>'
+            f'<p><form action="/admin_panel/complete_order{order["name"].replace("#", ".")}" method="post">'
+            f'<input type="submit" value="ВЫПОЛНИТЬ"/></form></p>')
+    return panel_html
+
+
 def load_signup_page(signup_html: str, message: str) -> str:
     log(f"Loading signup page with message={message}")
     signup_html = signup_html.replace(

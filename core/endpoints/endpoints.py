@@ -4,7 +4,7 @@ from core.database_handler import DatabaseHandler
 from fastapi.responses import HTMLResponse, RedirectResponse
 from core.service import upload_pages, base_logger
 from core.pages_loader import load_profile_page, load_main_page, load_signup_page, load_login_page, load_basket_page, \
-    add_authorized_effects
+    add_authorized_effects, load_admin_panel_page
 from fastapi import FastAPI, Depends
 from core.endpoints.requests_models import *
 from fastapi_jwt_auth import AuthJWT
@@ -157,6 +157,21 @@ async def news_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
     return HTMLResponse(content=page, status_code=200)
 
 
+@app.post("/admin_panel/complete_order{order_name}")
+async def complete_order(
+        order_name: str,
+        authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    try:
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
+        assert current_user == "admin"
+    except (MissingTokenError, JWTDecodeError, AssertionError):
+        return RedirectResponse("/login")
+
+    database_handler.complete_order(order_name.replace('.', "#"))
+    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+
+
 @app.get("/admin_panel")
 async def admin_panel_page(authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
     log("Getting admin panel page request")
@@ -167,6 +182,8 @@ async def admin_panel_page(authorize: AuthJWT = Depends()) -> HTMLResponse or Re
         if current_user == "admin":
             log("User is admin, getting admin panel")
             page = add_authorized_effects(page, current_user)
+            incompleted_orders = basket_handler.get_incompleted_orders_list()
+            page = load_admin_panel_page(page, incompleted_orders)
             return HTMLResponse(content=page, status_code=200)
     except (MissingTokenError, JWTDecodeError):
         log("Admin panel request from non-authorized user!")

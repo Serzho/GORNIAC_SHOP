@@ -278,6 +278,34 @@ class DatabaseHandler:
     def get_user_orders(self, username: str) -> dict:
         return self.__session.query(User.name, User.reservations).filter(username == User.name).first().reservations
 
+    def complete_order(self, order_name: str) -> None:
+        order_query = self.__session.query(Reservation).filter(Reservation.reservation_name == order_name).all()
+        try:
+            for order in order_query:
+                order.is_completed = True
+                self.__session.add(order)
+            self.__session.commit()
+        except Exception as e:
+            log(f"UNKNOWN ERROR: {e}")
+
+    def get_user_info_from_order(self, order_name: str) -> dict:
+        user_id = self.__session.query(Reservation.user_id, Reservation.reservation_name).filter(
+            Reservation.reservation_name == order_name
+        ).first().user_id
+        username = self.__session.query(User.user_id, User.name).filter(user_id == User.user_id).first().name
+        return {"user_id": user_id, "username": username}
+
+    def get_incomplete_orders(self) -> set:
+        names_set = set()
+        orders_query = self.__session.query(
+            Reservation.reservation_name,
+            Reservation.is_completed).filter(
+            Reservation.is_completed.is_not(True)
+        ).all()
+        for order in orders_query:
+            names_set.add(order.reservation_name)
+        return names_set
+
     def get_product_name(self, product_id: int) -> str:
         return self.__session.query(
             Product.product_id, Product.product_name
