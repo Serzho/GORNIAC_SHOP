@@ -20,12 +20,12 @@ class Product(Base):
     rating = Column("rating", SmallInteger)
 
     def __init__(self, dev_date: date, nicotine: int,
-                 vp_pg: str, amount_items: int, is_demo: bool, is_active: bool,
+                 vg_pg: str, amount_items: int, is_demo: bool, is_active: bool,
                  product_name: str, description: str, logo_file: str, price: int,
                  volume: int, rating: int):
         self.dev_date = dev_date
         self.nicotine = nicotine
-        self.vp_pg = vp_pg
+        self.vg_pg = vg_pg
         self.amount_items = amount_items
         self.is_demo = is_demo
         self.is_active = is_active

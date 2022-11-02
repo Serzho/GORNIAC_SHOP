@@ -2,7 +2,7 @@ from hashlib import sha3_256
 from service import base_logger
 from re import match
 from database_handler import DatabaseHandler
-
+from email_handler import EmailHandler
 
 # TODO: БАГ: ПРОПУСТИЛО БРЕДОВЫЙ ЕМЭИЛ ПРИ РЕГИСТРАЦИИ
 
@@ -12,10 +12,12 @@ def log(message: str) -> None:
 
 
 class Auth:
-    databaseHandler = None
+    database_handler: DatabaseHandler
+    email_handler: EmailHandler
 
-    def __init__(self, database_handler: DatabaseHandler) -> None:
-        self.databaseHandler = database_handler
+    def __init__(self, database_handler: DatabaseHandler, email_handler: EmailHandler) -> None:
+        self.database_handler = database_handler
+        self.email_handler = email_handler
         log("Auth handler initialized!")
         log("Creating admin profile")
         self.create_admin()
@@ -24,7 +26,7 @@ class Auth:
     def change_password(self, username: str, password: str) -> (bool, str):
         log(f"Changing password for user={username}")
         if self.check_password(password):
-            self.databaseHandler.change_user_password(username, self.hash_password(password))
+            self.database_handler.change_user_password(username, self.hash_password(password))
             log(f"Password for user={username} changed successfully!")
             return True, "Password was changed"
         else:
@@ -34,7 +36,7 @@ class Auth:
     def change_email(self, username: str, email: str) -> (bool, str):
         log(f"Changing email for user={username}")
         if self.check_email(email):
-            self.databaseHandler.change_user_email(username, email)
+            self.database_handler.change_user_email(username, email)
             log(f"Email for user={username} changed successfully!")
             return True, "Email was changed"
         else:
@@ -43,7 +45,7 @@ class Auth:
 
     def create_admin(self) -> None:
         log("Creating admin")
-        if not self.databaseHandler.username_exist("admin"):
+        if not self.database_handler.username_exist("admin"):
             while True:
                 print("Please, enter admin password: ")
                 password = input()
@@ -67,18 +69,18 @@ class Auth:
             return False, f"Too easy password"
         hashed_password = self.hash_password(password)
         log(f"Sign up: username={username}, sha_password={hashed_password}")
-        if self.databaseHandler.email_exist(email):
+        if self.database_handler.email_exist(email):
             log(f"Email {email} already used!")
             return False, f"Email {email} already used!"
         elif self.check_email(email) is None:
             log(f"Email isn't correct!")
             return False, f"Email isn't correct!"
-        elif self.databaseHandler.username_exist(username):
+        elif self.database_handler.username_exist(username):
             log(f"User with name {username} already exists!")
             return False, f"User with name {username} already exists!"
         else:
             log(f"Adding user with name={username} to database")
-            return self.databaseHandler.add_user(username, hashed_password, email)
+            return self.database_handler.add_user(username, hashed_password, email)
 
     @staticmethod
     def check_email(email: str) -> bool:
@@ -90,14 +92,19 @@ class Auth:
 
     def login(self, username: str, password: str) -> (bool, str):
         log(f"Login user with name={username}")
-        if not self.databaseHandler.username_exist(username):
+        if not self.database_handler.username_exist(username):
             log(f"User with name {username} doesn't exists!")
             return False, f"User with name {username} doesn't exists!"
-        elif self.databaseHandler.check_ban_user(username):
+        elif self.database_handler.check_ban_user(username):
             return False, "BAN"
-        elif self.databaseHandler.get_user(username)["hashed_password"] == self.hash_password(password):
+        elif self.database_handler.get_user(username)["hashed_password"] == self.hash_password(password):
             log(f"Correct authentication user with name={username}")
             return True, "Correct authentication"
         else:
             log(f"Invalid password for user with name={username}")
             return False, "Invalid password"
+
+    def ban_user(self, user_id: int, ban_description: str) -> None:
+        self.database_handler.ban_user(user_id, ban_description)
+        username = self.database_handler.get_username(user_id)
+        self.email_handler.send_ban_email(ban_description, username, self.database_handler.get_user_email(username))

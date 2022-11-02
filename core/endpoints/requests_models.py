@@ -16,6 +16,24 @@ class AdminAddingItemForm(BaseModel):
         return cls(product_id=product_id, count=count)
 
 
+class AdminAddingProductForm(BaseModel):
+    nicotine: int
+    vp_pg: str
+    name: str
+    description: str
+    logo_file: str
+    price: int
+    volume: int
+    rating: int
+
+    @classmethod
+    def as_form(cls, nicotine: int = Form(), vp_pg: str = Form(), name: str = Form(), description: str = Form(),
+                logo_file: str = Form(), price: int = Form(), volume: int = Form(), rating: int = Form()):
+        return cls(
+            nicotine=nicotine, vp_pg=vp_pg, name=name, description=description, logo_file=logo_file,
+            price=price, volume=volume, rating=rating)
+
+
 class AdminBanUserForm(BaseModel):
     user_id: int
     ban_description: str

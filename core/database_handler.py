@@ -27,7 +27,7 @@ class DatabaseHandler:
     def check_ban_user(self, username: str) -> bool:
         return self.__session.query(User.name, User.is_banned).filter(User.name == username).first().is_banned
 
-    def add_item(self, product_id: int, count: int) -> None:
+    def add_items(self, product_id: int, count: int) -> None:
         try:
             for i in range(count):
                 item = Item(product_id, datetime.now(), False, False)
@@ -43,11 +43,14 @@ class DatabaseHandler:
             user.is_banned = True
             user.ban_description = ban_description
             self.__session.commit()
-            self.cancel_orders(user.reservations)
+            self.cancel_orders_dict(user.reservations)
         except Exception as e:
             print(e)
 
-    def cancel_orders(self, reservations: dict) -> None:
+    def get_username(self, user_id: int) -> str:
+        return self.__session.query(User.user_id, User.name).filter(User.user_id == user_id).first().name
+
+    def cancel_orders_dict(self, reservations: dict) -> None:
         product_list = set()
         for index, reservation_name in reservations.items():
             reservs_query = self.__session.query(Reservation).filter(
@@ -182,6 +185,30 @@ class DatabaseHandler:
     def get_user_id(self, username: str) -> int:
         return self.__session.query(User.user_id, User.name).filter(User.name == username).first().user_id
 
+    def add_product(
+            self, nicotine: int, vp_pg: str, product_name: str, description: str,
+            logo_file: str, price: int, volume: int, rating: int) -> None:
+        product = Product(
+            dev_date=date.today(),
+            nicotine=nicotine,
+            vg_pg=vp_pg,
+            amount_items=0,
+            is_demo=True,
+            is_active=False,
+            product_name=product_name,
+            description=description,
+            logo_file=logo_file,
+            price=price,
+            volume=volume,
+            rating=rating
+        )
+        try:
+            self.__session.rollback()
+            self.__session.add(product)
+            self.__session.commit()
+        except Exception as e:
+            log(f"UNKNOWN ERROR: {e}")
+
     def add_order(
             self, username: str, order_name: str, product_id: int, amount: int, sale: int, price: int,
             reserved_dict: dict) -> (bool, str):
@@ -220,6 +247,9 @@ class DatabaseHandler:
             ).filter(Item.is_reserved.is_not(True), Item.product_id == product_id).count()
             if product.amount_items == 0:
                 product.is_active = False
+            else:
+                product.is_active = True
+                product.is_demo = False
             self.__session.commit()
             log(f"Amount items for product with id={product_id} was refreshed")
         except Exception as e:

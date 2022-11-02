@@ -15,12 +15,13 @@ from core.email_handler import EmailHandler
 
 
 pages_dict = upload_pages()
-databaseHandler = DatabaseHandler()
+database_handler = DatabaseHandler()
 app = FastAPI()
-auth_handler = Auth(databaseHandler)
-order_dict = {}
 email_handler = EmailHandler()
-basket_handler = BasketHandler(databaseHandler, email_handler)
+auth_handler = Auth(database_handler, email_handler)
+order_dict = {}
+
+basket_handler = BasketHandler(database_handler, email_handler)
 
 
 def log(message: str) -> None:
@@ -34,6 +35,29 @@ def get_config() -> Settings:
     return Settings()
 
 
+@app.post("/admin_panel/adding_product")
+async def adding_product(
+        product_info: AdminAddingProductForm = Depends(AdminAddingProductForm.as_form),
+        authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    try:
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
+        assert current_user == "admin"
+    except (MissingTokenError, JWTDecodeError, AssertionError):
+        return RedirectResponse("/login")
+    database_handler.add_product(
+        nicotine=product_info.nicotine,
+        vp_pg=product_info.vp_pg,
+        product_name=product_info.name,
+        description=product_info.description,
+        logo_file=product_info.logo_file,
+        price=product_info.price,
+        volume=product_info.volume,
+        rating=product_info.rating
+    )
+    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+
+
 @app.post("/admin_panel/adding_item")
 async def adding_item(
         item_info: AdminAddingItemForm = Depends(AdminAddingItemForm.as_form),
@@ -44,7 +68,7 @@ async def adding_item(
         assert current_user == "admin"
     except (MissingTokenError, JWTDecodeError, AssertionError):
         return RedirectResponse("/login")
-    databaseHandler.add_item(item_info.product_id, item_info.count)
+    database_handler.add_items(item_info.product_id, item_info.count)
     return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
 
 
@@ -59,7 +83,7 @@ async def ban_user(
     except (MissingTokenError, JWTDecodeError, AssertionError):
         return RedirectResponse("/login")
 
-    databaseHandler.ban_user(ban_info.user_id, ban_info.ban_description)
+    auth_handler.ban_user(ban_info.user_id, ban_info.ban_description)
     return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
 
 
@@ -215,7 +239,7 @@ async def increase_from_basket(product_name: str, authorize: AuthJWT = Depends()
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized! Redirecting to login page")
         return RedirectResponse("/login")
-    product_id = databaseHandler.get_product_id(product_name)
+    product_id = database_handler.get_product_id(product_name)
     basket_handler.add_product(current_user, product_id)
     log("Successfully increased, redirecting to basket page")
     return RedirectResponse(url="/basket", status_code=303)
@@ -272,7 +296,7 @@ async def profile_page(authorize: AuthJWT = Depends()) -> HTMLResponse or Redire
         orders_list = basket_handler.get_orders_list(current_user)
         return HTMLResponse(
             content=load_profile_page(
-                page, current_user, databaseHandler.get_user_email(current_user), None, orders_list
+                page, current_user, database_handler.get_user_email(current_user), None, orders_list
             ),
             status_code=200
         )
@@ -292,7 +316,7 @@ async def profile_page(message: str, authorize: AuthJWT = Depends()) -> HTMLResp
         orders_list = basket_handler.get_orders_list(current_user)
         return HTMLResponse(
             content=load_profile_page(
-                page, current_user, databaseHandler.get_user_email(current_user), message, orders_list
+                page, current_user, database_handler.get_user_email(current_user), message, orders_list
             ),
             status_code=200
         )
@@ -423,7 +447,7 @@ def basket_page(message: str, authorize: AuthJWT = Depends()) -> RedirectRespons
 async def main_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
     log("Main page request")
     page = pages_dict.get("index.html")
-    product_col_rows = databaseHandler.get_product_cols()
+    product_col_rows = database_handler.get_product_cols()
     try:
         authorize.jwt_required()
         username = authorize.get_jwt_subject()
