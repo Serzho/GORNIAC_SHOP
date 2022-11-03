@@ -15,7 +15,7 @@ def load_profile_page(profile_html: str, username: str, email: str, message: str
     for order in orders[::-1]:
         product_table = ''
         for index, product in order["products"].items():
-            product_table += f"<p>{product['product_name']}: {product['amount']} * {product['price']} = {product['total']}</p>"
+            product_table += f"<p>{product['product_name']} {product['amount']} шт.: {product['total']}</p>"
         completed = "да" if order["is_completed"] else "нет"
         cancel_button = f'<p><form action="/cancel_order{order["name"].replace("#", ".")}"' \
                         ' method="post"><input type="submit" ' \
@@ -35,7 +35,7 @@ def load_admin_panel_page(panel_html: str, orders: list[dict] or None) -> str:
     for order in orders[::-1]:
         product_table = ''
         for index, product in order["products"].items():
-            product_table += f"<p>{product['product_name']}: {product['amount']} * {product['price']} = {product['total']}</p>"
+            product_table += f"<p>{product['product_name']} {product['amount']} шт.: {product['total']}</p>"
         panel_html = panel_html.replace(
             '<h2> РАБОТА С ЗАКАЗАМИ </h2>',
             f'<h2> РАБОТА С ЗАКАЗАМИ </h2>'

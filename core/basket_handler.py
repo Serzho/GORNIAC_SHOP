@@ -129,10 +129,12 @@ class BasketHandler:
             )
             reserved_dict = {i: reserved_list[i] for i in range(len(reserved_list))}
             self.database_handler.refresh_amount_items(product_id)
+            current_sale = product_chars["amount"] * product_chars["price"] \
+                if product_chars["amount"] * product_chars["price"] < sale else sale
+            sale -= current_sale
             success, response_msg = self.database_handler.add_order(
-                username, order_name, product_id, product_chars["amount"], sale, product_chars["price"], reserved_dict
+                username, order_name, product_id, product_chars["amount"], current_sale, product_chars["price"], reserved_dict
             )
-            sale = 0
             self.database_handler.delete_promo(username, promo)
             log(f"Order={order_name}: product={product_name}, success={success}, msg={response_msg}")
 

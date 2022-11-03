@@ -35,10 +35,10 @@ def get_config() -> Settings:
     return Settings()
 
 
-@app.post("/admin_panel/adding_product")
+@app.post("/admin_panel/adding_product", response_class=RedirectResponse)
 async def adding_product(
         product_info: AdminAddingProductForm = Depends(AdminAddingProductForm.as_form),
-        authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+        authorize: AuthJWT = Depends()) -> RedirectResponse:
     log(f"Adding product from admin panel request: product={product_info}")
     try:
         authorize.jwt_required()
@@ -59,13 +59,13 @@ async def adding_product(
         volume=product_info.volume,
         rating=product_info.rating
     )
-    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+    return RedirectResponse("/admin_panel/", status_code=303)
 
 
-@app.post("/admin_panel/adding_item")
+@app.post("/admin_panel/adding_item", response_class=RedirectResponse)
 async def adding_item(
         item_info: AdminAddingItemForm = Depends(AdminAddingItemForm.as_form),
-        authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+        authorize: AuthJWT = Depends()) -> RedirectResponse:
     log(f"Adding item from admin panel request: item_info={item_info}")
     try:
         authorize.jwt_required()
@@ -77,11 +77,11 @@ async def adding_item(
         return RedirectResponse("/login")
     log("Adding item to database")
     database_handler.add_items(item_info.product_id, item_info.count)
-    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+    return RedirectResponse("/admin_panel/", status_code=303)
 
 
-@app.post("/admin_panel/refresh_amounts")
-async def refresh_amounts(authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+@app.post("/admin_panel/refresh_amounts", response_class=RedirectResponse)
+async def refresh_amounts(authorize: AuthJWT = Depends()) -> RedirectResponse:
     log("Refreshing amount from admin panel request")
     try:
         authorize.jwt_required()
@@ -93,13 +93,13 @@ async def refresh_amounts(authorize: AuthJWT = Depends()) -> HTMLResponse or Red
         return RedirectResponse("/login")
     log("Refreshing all amounts")
     database_handler.refresh_amounts()
-    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+    return RedirectResponse("/admin_panel/", status_code=303)
 
 
-@app.post("/admin_panel/adding_promo")
+@app.post("/admin_panel/adding_promo", response_class=RedirectResponse)
 async def adding_promo(
         promo_info: AdminAddingPromoForm = Depends(AdminAddingPromoForm.as_form),
-        authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+        authorize: AuthJWT = Depends()) -> RedirectResponse:
     log(f"Adding promo from admin panel request: promo_info={promo_info}")
     try:
         authorize.jwt_required()
@@ -111,13 +111,13 @@ async def adding_promo(
         return RedirectResponse("/login")
     log("Adding promo")
     basket_handler.create_promocode(promo_info.user_id, promo_info.sale)
-    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+    return RedirectResponse("/admin_panel/", status_code=303)
 
 
 @app.post("/admin_panel/ban_user")
 async def ban_user(
         ban_info: AdminBanUserForm = Depends(AdminBanUserForm.as_form),
-        authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+        authorize: AuthJWT = Depends()) -> RedirectResponse:
     log(f"Ban user from admin panel request: ban_info={ban_info}")
     try:
         authorize.jwt_required()
@@ -129,7 +129,7 @@ async def ban_user(
         return RedirectResponse("/login")
     log("Ban user")
     auth_handler.ban_user(ban_info.user_id, ban_info.ban_description)
-    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+    return RedirectResponse("/admin_panel/", status_code=303)
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -203,10 +203,10 @@ async def news_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
     return HTMLResponse(content=page, status_code=200)
 
 
-@app.post("/admin_panel/complete_order{order_name}")
+@app.post("/admin_panel/complete_order{order_name}", response_class=RedirectResponse)
 async def complete_order(
         order_name: str,
-        authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+        authorize: AuthJWT = Depends()) -> RedirectResponse:
     log(f"Complete order from admin panel request: order_name={order_name}")
     try:
         authorize.jwt_required()
@@ -218,7 +218,7 @@ async def complete_order(
         return RedirectResponse("/login")
     log("Completing order")
     database_handler.complete_order(order_name.replace('.', "#"))
-    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+    return RedirectResponse("/admin_panel/", status_code=303)
 
 
 @app.post("/cancel_order{order_name}")
@@ -420,6 +420,7 @@ async def signup(signup_info: SignupForm = Depends(SignupForm.as_form)) -> Redir
         success, response_msg = False, "Empty field!"
     log(f"Signup request result: success={success}, response_msg={response_msg}")
     if success:
+        basket_handler.create_promocode(database_handler.get_user_id(signup_info.username), 50)
         log("Redirecting to login page")
         return RedirectResponse("/login", status_code=303)
     else:

@@ -423,7 +423,6 @@ class DatabaseHandler:
             i += 1
             products.update({i: {
                 "product_name": self.get_product_name(el.product_id),
-                "price": el.total,
                 "amount": el.amount,
                 "total": el.total
             }})
