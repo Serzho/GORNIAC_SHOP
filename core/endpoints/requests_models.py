@@ -7,6 +7,23 @@ class Request(BaseModel):
     pass
 
 
+class OrderForm(BaseModel):
+    promocode: str
+
+    @classmethod
+    def as_form(cls, promocode: str = Form("not")):
+        return cls(promocode=promocode)
+
+
+class AdminAddingPromoForm(BaseModel):
+    user_id: int
+    sale: int
+
+    @classmethod
+    def as_form(cls, user_id: int = Form(-1), sale: int = Form(0)):
+        return cls(user_id=user_id, sale=sale)
+
+
 class AdminAddingItemForm(BaseModel):
     product_id: int
     count: int

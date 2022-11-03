@@ -80,7 +80,9 @@ def add_authorized_effects(page_html: str, username: str) -> str:
     return page_html
 
 
-def load_basket_page(basket_html: str, name: str, basket_list: dict, message: str or None) -> str:
+def load_basket_page(
+        basket_html: str, name: str, basket_list: dict, message: str or None, promocodes: dict or None
+) -> str:
     log(f"Updating basket page for user with name={name} with message={message}")
     total = basket_list.get("total")
     products = basket_list.get("products")
@@ -104,7 +106,16 @@ def load_basket_page(basket_html: str, name: str, basket_list: dict, message: st
                                                      f'height="25px" width="25px"></a></body>')
     basket_html = basket_html.replace('</body>', f'<p>{total}</p>'
                                                  f'<form action="/order" method="post">'
+                                                 f'<p><strong>ПРОМОКОДЫ:</strong></p>'
+                                                 f'<p><input type="radio" id="no" name="promocode" value="no" checked>'
+                                                 f'<label for="no">(нет)</label></p>'
                                                  f'<input type="submit" value="Заказать"/></body>')
+    if promocodes is not None:
+        for promo, sale in promocodes.items():
+            basket_html = basket_html.replace('<label for="no">(нет)</label></p>',
+                                              '<label for="no">(нет)</label></p>'
+                                              f'<input type="radio" id="{promo}" name="promocode" value="{promo}">'
+                                              f'<label for="{promo}">{sale} руб.</label></p>')
     log("Returning up-to-date basket page")
     return basket_html
 

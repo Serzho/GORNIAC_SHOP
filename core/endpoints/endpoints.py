@@ -72,6 +72,21 @@ async def adding_item(
     return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
 
 
+@app.post("/admin_panel/adding_promo")
+async def adding_promo(
+        promo_info: AdminAddingPromoForm = Depends(AdminAddingPromoForm.as_form),
+        authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    try:
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
+        assert current_user == "admin"
+    except (MissingTokenError, JWTDecodeError, AssertionError):
+        return RedirectResponse("/login")
+
+    basket_handler.create_promocode(promo_info.user_id, promo_info.sale)
+    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+
+
 @app.post("/admin_panel/ban_user")
 async def ban_user(
         ban_info: AdminBanUserForm = Depends(AdminBanUserForm.as_form),
@@ -109,7 +124,8 @@ async def good_order_page() -> HTMLResponse:
 
 
 @app.post("/order", response_class=RedirectResponse)
-async def order(authorize: AuthJWT = Depends()) -> RedirectResponse:
+async def order(order_info: OrderForm = Depends(OrderForm.as_form),
+                authorize: AuthJWT = Depends()) -> RedirectResponse:
     log("Order request")
     try:
         authorize.jwt_required()
@@ -118,10 +134,10 @@ async def order(authorize: AuthJWT = Depends()) -> RedirectResponse:
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized for order!")
         return RedirectResponse("/login")
-    success, response_msg = basket_handler.check_order(current_user)
+    success, response_msg = basket_handler.check_order(current_user, order_info.promocode)
     if success:
         log(f"Ordering for user {current_user}")
-        basket_handler.order(current_user)
+        basket_handler.order(current_user, order_info.promocode)
         return RedirectResponse(url="/good_order", status_code=303)
     else:
         log(f"Order failed: {response_msg}")
@@ -453,7 +469,8 @@ def basket_page(authorize: AuthJWT = Depends()) -> RedirectResponse or HTMLRespo
         return RedirectResponse("/login", status_code=303)
 
     basket_dict = basket_handler.get_basket_list(username)
-    page = load_basket_page(page, username, basket_dict, None)
+    promo = database_handler.get_user_promo(username)
+    page = load_basket_page(page, username, basket_dict, None, promo)
     log("Returning up-to-date basket page")
     return HTMLResponse(content=page, status_code=200)
 
@@ -472,7 +489,8 @@ def basket_page(message: str, authorize: AuthJWT = Depends()) -> RedirectRespons
         return RedirectResponse("/login", status_code=303)
 
     basket_dict = basket_handler.get_basket_list(username)
-    page = load_basket_page(page, username, basket_dict, message)
+    promo = database_handler.get_user_promo(username)
+    page = load_basket_page(page, username, basket_dict, message, promo)
     log("Returning up-to-date basket page")
     return HTMLResponse(content=page, status_code=200)
 

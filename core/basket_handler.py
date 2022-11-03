@@ -2,6 +2,8 @@ from datetime import datetime
 from core.service import base_logger
 from database_handler import DatabaseHandler
 from email_handler import EmailHandler
+import jwt
+from cfg import SECRET_JWT
 
 
 def log(message: str) -> None:
@@ -19,6 +21,11 @@ class BasketHandler:
         self.database_handler = database_handler
         self.email_handler = email_handler
         log("Basket handler initialized")
+
+    def create_promocode(self, user_id: int, sale: int):
+        username = self.database_handler.get_username(user_id)
+        promo_jwt = jwt.encode({"sale": sale, "user": username}, SECRET_JWT, algorithm="HS256").decode('utf-8')
+        self.database_handler.add_promo(user_id, sale, promo_jwt)
 
     def get_basket_list(self, name: str) -> dict:
         log(f"Getting basket list for user={name}")
@@ -66,8 +73,25 @@ class BasketHandler:
         else:
             log(f"Current product with name={product_name} doesn't exist in list")
 
-    def check_order(self, username) -> (bool, str):
+    @staticmethod
+    def decode_promocode(promo: str) -> (int, str):
+        try:
+            decoded = jwt.decode(promo.encode('utf-8'), SECRET_JWT, algorithm="HS256")
+            return decoded["sale"], decoded["user"]
+        except Exception as e:
+            print(e)
+            return 0, "none"
+
+
+    def check_promocode(self, username: str, promo: str) -> bool:
+        _, user_jwt = self.decode_promocode(promo)
+        return user_jwt == username and user_jwt != "none"
+
+    def check_order(self, username: str, promo: str) -> (bool, str):
         log(f"Checking order for username with name={username}")
+        if not self.check_promocode(username, promo):
+            print(self.check_promocode(username, promo), self.decode_promocode(promo))
+            return False, "Invalid promocode!"
         basket_list = self.get_basket_list(username)
         product_list = basket_list.get("products")
         if not len(product_list):
@@ -80,10 +104,13 @@ class BasketHandler:
                                   f" exists!"
             return True, "Correct order!"
 
-    def order(self, username: str) -> None:
+    def order(self, username: str, promo: str) -> None:
         log(f"Order for user {username}")
         basket_list = self.get_basket_list(username)
         product_list = basket_list.get("products")
+        sale = 0
+        if promo != "not":
+            sale, _ = self.decode_promocode(promo)
         number = 0
         while True:
             order_name = f"#{username}#{datetime.now().strftime('%Y%m%d')}#{number}"
@@ -103,8 +130,10 @@ class BasketHandler:
             reserved_dict = {i: reserved_list[i] for i in range(len(reserved_list))}
             self.database_handler.refresh_amount_items(product_id)
             success, response_msg = self.database_handler.add_order(
-                username, order_name, product_id, product_chars["amount"], 0, product_chars["price"], reserved_dict
+                username, order_name, product_id, product_chars["amount"], sale, product_chars["price"], reserved_dict
             )
+            sale = 0
+            self.database_handler.delete_promo(username, promo)
             log(f"Order={order_name}: product={product_name}, success={success}, msg={response_msg}")
 
     def get_orders_list(self, username: str) -> list:

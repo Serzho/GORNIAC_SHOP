@@ -282,6 +282,37 @@ class DatabaseHandler:
         except Exception as e:
             log(f"UNKNOWN ERROR: {e}")
 
+    def add_promo(self, user_id: int, sale: int, jwt_str: str) -> None:
+        user = self.__session.query(User).filter(user_id == User.user_id).first()
+        promo_dict = user.promo_codes
+        if promo_dict is None:
+            promo_dict = {}
+        promo_dict.update({jwt_str: f"{sale}"})
+        user.promo_codes = promo_dict
+        flag_modified(user, "promo_codes")
+        try:
+            self.__session.add(user)
+            self.__session.commit()
+        except Exception as e:
+            print(f"UNKNOWN ERROR: {e}")
+
+    def delete_promo(self, username: str, promo: str) -> None:
+        user = self.__session.query(User).filter(username == User.name).first()
+        promo_dict = user.promo_codes
+        if promo_dict is None:
+            promo_dict = {}
+        promo_dict.pop(promo)
+        user.promo_codes = promo_dict
+        flag_modified(user, "promo_codes")
+        try:
+            self.__session.add(user)
+            self.__session.commit()
+        except Exception as e:
+            print(f"UNKNOWN ERROR: {e}")
+
+    def get_user_promo(self, username: str) -> dict:
+        return self.__session.query(User.promo_codes, User.name).filter(username == User.name).first().promo_codes
+
     def register_order(self, order_name: str, username: str) -> None:
         log(f"Register order={order_name} to user={username}")
         user = self.__session.query(User).filter(User.name == username).first()
