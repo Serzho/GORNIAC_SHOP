@@ -404,6 +404,22 @@ class DatabaseHandler:
             Product.product_id, Product.product_name
         ).filter(product_id == Product.product_id).first().product_name
 
+    def get_all_users(self) -> list[dict]:
+        users_query = self.__session.query(User.user_id, User.name, User.is_banned).all()
+        users_list = []
+        for user in users_query:
+            users_list.append({"name": user.name, "id": user.user_id, "is_banned": user.is_banned})
+        return users_list
+
+    def get_all_products(self) -> list[dict]:
+        products_query = self.__session.query(Product.product_id, Product.product_name, Product.amount_items).all()
+        products_list = []
+        for product in products_query:
+            products_list.append({
+                "name": product.product_name, "id": product.product_id, "amount": product.amount_items
+            })
+        return products_list
+
     def get_order_dict_for_history(self, order_name: str) -> dict:
         log(f"Getting order dict from database: order={order_name}")
         reservs = self.__session.query(

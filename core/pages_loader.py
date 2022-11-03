@@ -31,7 +31,8 @@ def load_profile_page(profile_html: str, username: str, email: str, message: str
     return profile_html
 
 
-def load_admin_panel_page(panel_html: str, orders: list[dict] or None) -> str:
+def load_admin_panel_page(
+        panel_html: str, orders: list[dict] or None, users: list[dict], products: list[dict] or None) -> str:
     for order in orders[::-1]:
         product_table = ''
         for index, product in order["products"].items():
@@ -45,6 +46,15 @@ def load_admin_panel_page(panel_html: str, orders: list[dict] or None) -> str:
             f'<input type="submit" value="ВЫПОЛНИТЬ"/></form></p>'
             f'<p><form action="/cancel_order{order["name"].replace("#", ".")}" method="post">'
             f'<input type="submit" value="ОТМЕНИТЬ"/></form></p>')
+    for user in users:
+        panel_html = panel_html.replace('<p>Пользователи</p><div class="dropdown_block"><ul>',
+                                        f'<p>Пользователи</p><div class="dropdown_block"><ul>'
+                                        f'<li>{user["name"]}, id={user["id"]}, бан={user["is_banned"]}</li>')
+    if products is not None:
+        for product in products:
+            panel_html = panel_html.replace('<p>Продукты</p><div class="dropdown_block"><ul>',
+                                            '<p>Продукты</p><div class="dropdown_block"><ul>'
+                                            f'<li>{product["name"]}, id={product["id"]}, кол-во={product["amount"]}')
     return panel_html
 
 

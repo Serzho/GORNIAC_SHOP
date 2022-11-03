@@ -252,7 +252,9 @@ async def admin_panel_page(authorize: AuthJWT = Depends()) -> HTMLResponse or Re
             log("User is admin, getting admin panel")
             page = add_authorized_effects(page, current_user)
             incompleted_orders = basket_handler.get_incompleted_orders_list()
-            page = load_admin_panel_page(page, incompleted_orders)
+            users = database_handler.get_all_users()
+            products = database_handler.get_all_products()
+            page = load_admin_panel_page(page, incompleted_orders, users, products)
             return HTMLResponse(content=page, status_code=200)
     except (MissingTokenError, JWTDecodeError):
         log("Admin panel request from non-authorized user!")
