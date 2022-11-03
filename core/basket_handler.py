@@ -23,9 +23,11 @@ class BasketHandler:
         log("Basket handler initialized")
 
     def create_promocode(self, user_id: int, sale: int):
+        log(f"Creating new promocode for user={user_id}, sale={sale}")
         username = self.database_handler.get_username(user_id)
         promo_jwt = jwt.encode({"sale": sale, "user": username}, SECRET_JWT, algorithm="HS256").decode('utf-8')
         self.database_handler.add_promo(user_id, sale, promo_jwt)
+        log("Promocode was successfully created")
 
     def get_basket_list(self, name: str) -> dict:
         log(f"Getting basket list for user={name}")
@@ -75,13 +77,14 @@ class BasketHandler:
 
     @staticmethod
     def decode_promocode(promo: str) -> (int, str):
+        log(f"Decoding promocode: {promo}")
         try:
             decoded = jwt.decode(promo.encode('utf-8'), SECRET_JWT, algorithm="HS256")
+            log(f"Promocode was decoded: {decoded}")
             return decoded["sale"], decoded["user"]
         except Exception as e:
-            print(e)
+            log(f"Decoding promocode: UNKNOWN ERROR: {e}, Returning (0, 'none')")
             return 0, "none"
-
 
     def check_promocode(self, username: str, promo: str) -> bool:
         _, user_jwt = self.decode_promocode(promo)
@@ -89,9 +92,6 @@ class BasketHandler:
 
     def check_order(self, username: str, promo: str) -> (bool, str):
         log(f"Checking order for username with name={username}")
-        if not self.check_promocode(username, promo):
-            print(self.check_promocode(username, promo), self.decode_promocode(promo))
-            return False, "Invalid promocode!"
         basket_list = self.get_basket_list(username)
         product_list = basket_list.get("products")
         if not len(product_list):
@@ -109,7 +109,7 @@ class BasketHandler:
         basket_list = self.get_basket_list(username)
         product_list = basket_list.get("products")
         sale = 0
-        if promo != "not":
+        if promo != "not" and self.check_promocode(username, promo):
             sale, _ = self.decode_promocode(promo)
         number = 0
         while True:

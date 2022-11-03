@@ -39,12 +39,16 @@ def get_config() -> Settings:
 async def adding_product(
         product_info: AdminAddingProductForm = Depends(AdminAddingProductForm.as_form),
         authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    log(f"Adding product from admin panel request: product={product_info}")
     try:
         authorize.jwt_required()
         current_user = authorize.get_jwt_subject()
         assert current_user == "admin"
+        log("Admin was authenticated")
     except (MissingTokenError, JWTDecodeError, AssertionError):
+        log("Authenticated error!")
         return RedirectResponse("/login")
+    log("Adding product to database")
     database_handler.add_product(
         nicotine=product_info.nicotine,
         vp_pg=product_info.vp_pg,
@@ -62,13 +66,33 @@ async def adding_product(
 async def adding_item(
         item_info: AdminAddingItemForm = Depends(AdminAddingItemForm.as_form),
         authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    log(f"Adding item from admin panel request: item_info={item_info}")
     try:
         authorize.jwt_required()
         current_user = authorize.get_jwt_subject()
         assert current_user == "admin"
+        log("Admin was authenticated")
     except (MissingTokenError, JWTDecodeError, AssertionError):
+        log("Authenticated error!")
         return RedirectResponse("/login")
+    log("Adding item to database")
     database_handler.add_items(item_info.product_id, item_info.count)
+    return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
+
+
+@app.post("/admin_panel/refresh_amounts")
+async def refresh_amounts(authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    log("Refreshing amount from admin panel request")
+    try:
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
+        assert current_user == "admin"
+        log("Admin was authenticated")
+    except (MissingTokenError, JWTDecodeError, AssertionError):
+        log("Authenticated error!")
+        return RedirectResponse("/login")
+    log("Refreshing all amounts")
+    database_handler.refresh_amounts()
     return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
 
 
@@ -76,13 +100,16 @@ async def adding_item(
 async def adding_promo(
         promo_info: AdminAddingPromoForm = Depends(AdminAddingPromoForm.as_form),
         authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    log(f"Adding promo from admin panel request: promo_info={promo_info}")
     try:
         authorize.jwt_required()
         current_user = authorize.get_jwt_subject()
         assert current_user == "admin"
+        log("Admin was authenticated")
     except (MissingTokenError, JWTDecodeError, AssertionError):
+        log("Authenticated error!")
         return RedirectResponse("/login")
-
+    log("Adding promo")
     basket_handler.create_promocode(promo_info.user_id, promo_info.sale)
     return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
 
@@ -91,13 +118,16 @@ async def adding_promo(
 async def ban_user(
         ban_info: AdminBanUserForm = Depends(AdminBanUserForm.as_form),
         authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    log(f"Ban user from admin panel request: ban_info={ban_info}")
     try:
         authorize.jwt_required()
         current_user = authorize.get_jwt_subject()
         assert current_user == "admin"
+        log("Admin was authenticated")
     except (MissingTokenError, JWTDecodeError, AssertionError):
+        log("Authenticated error!")
         return RedirectResponse("/login")
-
+    log("Ban user")
     auth_handler.ban_user(ban_info.user_id, ban_info.ban_description)
     return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
 
@@ -177,13 +207,16 @@ async def news_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
 async def complete_order(
         order_name: str,
         authorize: AuthJWT = Depends()) -> HTMLResponse or RedirectResponse:
+    log(f"Complete order from admin panel request: order_name={order_name}")
     try:
         authorize.jwt_required()
         current_user = authorize.get_jwt_subject()
         assert current_user == "admin"
+        log("Admin was authenticated")
     except (MissingTokenError, JWTDecodeError, AssertionError):
+        log("Authenticated error!")
         return RedirectResponse("/login")
-
+    log("Completing order")
     database_handler.complete_order(order_name.replace('.', "#"))
     return HTMLResponse(content=pages_dict["admin_panel.html"], status_code=200)
 
@@ -192,15 +225,18 @@ async def complete_order(
 async def cancel_order(
         order_name: str,
         authorize: AuthJWT = Depends()) -> RedirectResponse:
+    log(f"Canceling order request: order_name={order_name}")
     try:
         authorize.jwt_required()
         current_user = authorize.get_jwt_subject()
         order_name = order_name.replace('.', "#")
         username_from_order = database_handler.get_user_info_from_order(order_name)["username"]
         assert current_user == "admin" or current_user == username_from_order
+        log("Admin or current user authenticated")
     except (MissingTokenError, JWTDecodeError, AssertionError):
+        log("Authenticated error!")
         return RedirectResponse("/login")
-
+    log("Canceling order")
     database_handler.cancel_order(order_name)
     return RedirectResponse("/", status_code=303)
 

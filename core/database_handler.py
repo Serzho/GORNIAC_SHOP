@@ -28,34 +28,41 @@ class DatabaseHandler:
         return self.__session.query(User.name, User.is_banned).filter(User.name == username).first().is_banned
 
     def add_items(self, product_id: int, count: int) -> None:
+        log(f"Adding items to database: product_id={product_id}, count={count}")
         try:
             for i in range(count):
                 item = Item(product_id, datetime.now(), False, False)
                 self.__session.add(item)
             self.__session.commit()
             self.refresh_amount_items(product_id)
+            log("Items was successfully added to database")
         except Exception as e:
-            print(e)
+            log(f"Adding items: UNKNOWN ERROR: {e}")
 
     def ban_user(self, user_id: int, ban_description: str) -> None:
+        log(f"Ban user in database: user_id={user_id}, ban_description={ban_description}")
         try:
             user = self.__session.query(User).filter(User.user_id == user_id).first()
             user.is_banned = True
             user.ban_description = ban_description
             self.__session.commit()
+            log("Canceling user orders")
             self.cancel_orders_dict(user.reservations)
+            log("User was successfully banned")
         except Exception as e:
-            print(e)
+            log(f"Ban user: UNKNOWN ERROR: {e}")
 
     def get_username(self, user_id: int) -> str:
         return self.__session.query(User.user_id, User.name).filter(User.user_id == user_id).first().name
 
     def cancel_order(self, order_name: str) -> None:
+        log(f"Cancel order: {order_name}")
         product_list = set()
         reservs_query = self.__session.query(Reservation).filter(
             Reservation.reservation_name == order_name, Reservation.is_completed.is_not(True)
         )
         user_id = reservs_query.first().user_id
+        log(f"Cancelling order: found user_id={user_id}")
         user = self.__session.query(User).filter(user_id == User.user_id).first()
         reserv_index = None
         for index, reserv_name in user.reservations.items():
@@ -70,14 +77,17 @@ class DatabaseHandler:
                 item.is_reserved = False
                 product_list.add(item.product_id)
             self.__session.delete(reserv)
+            log(f"Reservation with id={reserv.reservation_id} was deleted")
         try:
             self.__session.commit()
             for product_id in product_list:
                 self.refresh_amount_items(product_id)
+            log("Order was successfully canceled")
         except Exception as e:
-            print(e)
+            log(f"Cancel order: UNKNOWN ERROR: {e}")
 
     def cancel_orders_dict(self, reservations: dict) -> None:
+        log(f"Canceling order dict: reservations={reservations}")
         product_list = set()
         for index, reservation_name in reservations.items():
             reservs_query = self.__session.query(Reservation).filter(
@@ -89,12 +99,14 @@ class DatabaseHandler:
                     item.is_reserved = False
                     product_list.add(item.product_id)
                 self.__session.delete(reserv)
+                log(f"Reservation with id={reserv.reservation_id} was deleted")
         try:
             self.__session.commit()
             for product_id in product_list:
                 self.refresh_amount_items(product_id)
+            log("Orders was successfully canceled")
         except Exception as e:
-            print(e)
+            log(f"Canceling order dict: UNKNOWN ERROR: {e}")
 
     def change_user_password(self, username: str, hashed_password: str) -> None:
         log(f"Changing password for user={username}")
@@ -104,7 +116,7 @@ class DatabaseHandler:
             self.__session.commit()
             log("User password was changed")
         except Exception as e:
-            log(f"UNKNOWN ERROR: {e}")
+            log(f"Changing user password: UNKNOWN ERROR: {e}")
 
     def change_user_email(self, username: str, email: str) -> None:
         log(f"Changing email for user={username}")
@@ -114,7 +126,7 @@ class DatabaseHandler:
             self.__session.commit()
             log("User email was changed")
         except Exception as e:
-            log(f"UNKNOWN ERROR: {e}")
+            log(f"Changing user email: UNKNOWN ERROR: {e}")
 
     def email_exist(self, email: str) -> bool:
         return bool(self.__session.query(User.email).filter(User.email == email).count())
@@ -131,7 +143,7 @@ class DatabaseHandler:
             log("Successfully adding user to database!")
             return True, f"User with name {username} successfully added"
         except Exception as e:
-            log(f"UNKNOWN ERROR: {e}")
+            log(f"Adding user: UNKNOWN ERROR: {e}")
             return False, e
 
     def reserve_items(self, product_id: int, amount: int) -> list:
@@ -148,7 +160,7 @@ class DatabaseHandler:
                 reserved_list.append(item.item_id)
                 log(f"Item with id={item.item_id} was reserved")
             except Exception as e:
-                log(f"UNKNOWN ERROR: {e}")
+                log(f"Reserving items: UNKNOWN ERROR: {e}")
         log(f"Returning reserved list with {len(reserved_list)} items")
         return reserved_list
 
@@ -215,6 +227,7 @@ class DatabaseHandler:
     def add_product(
             self, nicotine: int, vp_pg: str, product_name: str, description: str,
             logo_file: str, price: int, volume: int, rating: int) -> None:
+        log("Adding new product to database")
         product = Product(
             dev_date=date.today(),
             nicotine=nicotine,
@@ -229,12 +242,14 @@ class DatabaseHandler:
             volume=volume,
             rating=rating
         )
+        log(f"New product: {product.__dict__}")
         try:
             self.__session.rollback()
             self.__session.add(product)
             self.__session.commit()
+            log("New product was successfully added")
         except Exception as e:
-            log(f"UNKNOWN ERROR: {e}")
+            log(f"Adding new product: UNKNOWN ERROR: {e}")
 
     def add_order(
             self, username: str, order_name: str, product_id: int, amount: int, sale: int, price: int,
@@ -259,7 +274,7 @@ class DatabaseHandler:
             log("Successfully adding order to database!")
             return True, f"Order with name {order_name} successfully added"
         except Exception as e:
-            log(f"UNKNOWN ERROR: {e}")
+            log(f"Adding order: UNKNOWN ERROR: {e}")
             return False, e
 
     def get_user_email(self, username: str) -> str:
@@ -280,35 +295,50 @@ class DatabaseHandler:
             self.__session.commit()
             log(f"Amount items for product with id={product_id} was refreshed")
         except Exception as e:
-            log(f"UNKNOWN ERROR: {e}")
+            log(f"Refreshing amount items: UNKNOWN ERROR: {e}")
 
     def add_promo(self, user_id: int, sale: int, jwt_str: str) -> None:
+        log(f"Adding promocode: user_id={user_id}, sale={sale}, jwt_str={jwt_str}")
         user = self.__session.query(User).filter(user_id == User.user_id).first()
         promo_dict = user.promo_codes
         if promo_dict is None:
             promo_dict = {}
         promo_dict.update({jwt_str: f"{sale}"})
         user.promo_codes = promo_dict
+        log(f"New promo_codes dict: {promo_dict}")
         flag_modified(user, "promo_codes")
         try:
             self.__session.add(user)
             self.__session.commit()
+            log("Promocode was successfully added!")
         except Exception as e:
-            print(f"UNKNOWN ERROR: {e}")
+            print(f"Adding promocode: UNKNOWN ERROR: {e}")
+
+    def refresh_amounts(self) -> None:
+        log("Refreshing amount of all products")
+        products = self.__session.query(Product.product_id).all()
+        for product in products:
+            self.refresh_amount_items(product.product_id)
 
     def delete_promo(self, username: str, promo: str) -> None:
+        log(f"Deleting promocode: user={username}, promocode={promo}")
         user = self.__session.query(User).filter(username == User.name).first()
         promo_dict = user.promo_codes
         if promo_dict is None:
             promo_dict = {}
-        promo_dict.pop(promo)
+        try:
+            promo_dict.pop(promo)
+            log("Promo was deleted from dict")
+        except KeyError:
+            log(f"KEY ERROR while deleting promo: promo_dict={promo_dict}")
         user.promo_codes = promo_dict
         flag_modified(user, "promo_codes")
         try:
             self.__session.add(user)
             self.__session.commit()
+            log("Successfully deleting promocode from user")
         except Exception as e:
-            print(f"UNKNOWN ERROR: {e}")
+            print(f"Deleting promocode: UNKNOWN ERROR: {e}")
 
     def get_user_promo(self, username: str) -> dict:
         return self.__session.query(User.promo_codes, User.name).filter(username == User.name).first().promo_codes
@@ -320,31 +350,34 @@ class DatabaseHandler:
             user.last_reservation_date = date.today()
             reservations = user.reservations
             next_index = 1
-            if reservations != {}:
+            if reservations != {} and reservations is not None:
                 next_index += max(list(map(int, reservations.keys())))
             else:
                 reservations = {}
             reservations.update({next_index: order_name})
+            log(f"New reservations dict: {reservations}")
             user.reservations = reservations
             flag_modified(user, "reservations")
             self.__session.add(user)
             self.__session.commit()
             log(f"Order {order_name} was registered for user={username}")
         except Exception as e:
-            log(f"UNKNOWN ERROR: {e}")
+            log(f"Register order: UNKNOWN ERROR: {e}")
 
     def get_user_orders(self, username: str) -> dict:
         return self.__session.query(User.name, User.reservations).filter(username == User.name).first().reservations
 
     def complete_order(self, order_name: str) -> None:
+        log(f"Complete order: order_name={order_name}")
         order_query = self.__session.query(Reservation).filter(Reservation.reservation_name == order_name).all()
         try:
             for order in order_query:
                 order.is_completed = True
                 self.__session.add(order)
             self.__session.commit()
+            log("Order was successfully completed")
         except Exception as e:
-            log(f"UNKNOWN ERROR: {e}")
+            log(f"Complete order: UNKNOWN ERROR: {e}")
 
     def get_user_info_from_order(self, order_name: str) -> dict:
         user_id = self.__session.query(Reservation.user_id, Reservation.reservation_name).filter(
@@ -354,6 +387,7 @@ class DatabaseHandler:
         return {"user_id": user_id, "username": username}
 
     def get_incomplete_orders(self) -> set:
+        log("Getting incomplete orders from database")
         names_set = set()
         orders_query = self.__session.query(
             Reservation.reservation_name,
@@ -362,6 +396,7 @@ class DatabaseHandler:
         ).all()
         for order in orders_query:
             names_set.add(order.reservation_name)
+        log(f"Returning incomplete {len(names_set)} orders")
         return names_set
 
     def get_product_name(self, product_id: int) -> str:
