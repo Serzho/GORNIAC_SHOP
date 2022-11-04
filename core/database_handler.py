@@ -373,6 +373,11 @@ class DatabaseHandler:
         try:
             for order in order_query:
                 order.is_completed = True
+                items_dict = order.items_reserved
+                for _, item_id in items_dict.items():
+                    item = self.__session.query(Item).filter(Item.item_id == item_id).first()
+                    item.is_sales = True
+                    self.__session.add(item)
                 self.__session.add(order)
             self.__session.commit()
             log("Order was successfully completed")
