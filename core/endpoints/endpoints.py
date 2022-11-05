@@ -1,14 +1,13 @@
 import time
-
-from core.database_handler import DatabaseHandler
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import FastAPI, Depends
+from fastapi_jwt_auth import AuthJWT
+from fastapi_jwt_auth.exceptions import MissingTokenError, JWTDecodeError
+from core.database_handler import DatabaseHandler
 from core.service import upload_pages, base_logger
 from core.pages_loader import load_profile_page, load_main_page, load_signup_page, load_login_page, load_basket_page, \
     add_authorized_effects, load_admin_panel_page
-from fastapi import FastAPI, Depends
 from core.endpoints.requests_models import *
-from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import MissingTokenError, JWTDecodeError
 from core.auth_handler import Auth
 from core.basket_handler import BasketHandler
 from core.email_handler import EmailHandler

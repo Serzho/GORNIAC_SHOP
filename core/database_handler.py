@@ -1,4 +1,5 @@
 import sys
+from sqlalchemy.orm.attributes import flag_modified
 sys.path.append("database")
 from datetime import datetime
 from database.init_database import load_session
@@ -8,7 +9,6 @@ from database.product_table import Product
 from database.item_table import Item
 from datetime import date
 from core.service import base_logger
-from sqlalchemy.orm.attributes import flag_modified
 
 
 def log(message: str) -> None:
@@ -460,6 +460,7 @@ class DatabaseHandler:
                 self.__session.delete(item)
             product.is_active = False
             self.__session.commit()
+            self.refresh_amounts()
             log("Product was successfully deleted")
         except Exception as e:
             log(f"Delete product: UNKNOWN ERROR: {e}")

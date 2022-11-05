@@ -1,8 +1,8 @@
 from datetime import datetime
+import jwt
 from core.service import base_logger
 from database_handler import DatabaseHandler
 from email_handler import EmailHandler
-import jwt
 from cfg import SECRET_JWT
 
 

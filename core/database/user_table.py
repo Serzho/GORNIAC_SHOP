@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, VARCHAR, Boolean, Date, JSON
-from core.database.init_database import Base
 from datetime import date
 import json
+from sqlalchemy import Column, Integer, VARCHAR, Boolean, Date, JSON
+from core.database.init_database import Base
+
 
 
 class User(Base):

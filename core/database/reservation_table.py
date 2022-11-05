@@ -1,6 +1,7 @@
+from datetime import date
 from sqlalchemy import Column, Integer, VARCHAR, Boolean, SmallInteger, Date, ForeignKey, JSON
 from init_database import Base
-from datetime import date
+
 
 
 class Reservation(Base):

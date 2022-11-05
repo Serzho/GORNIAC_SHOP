@@ -1,6 +1,7 @@
+from datetime import date
 from sqlalchemy import Column, Integer, SmallInteger, Date, ForeignKey, Boolean
 from init_database import Base
-from datetime import date
+
 
 
 class Item(Base):

@@ -1,6 +1,7 @@
+from datetime import date
 from sqlalchemy import Column, VARCHAR, Boolean, SmallInteger, Date
 from init_database import Base
-from datetime import date
+
 
 
 class Product(Base):
@@ -13,7 +14,7 @@ class Product(Base):
     is_demo = Column("is_demo", Boolean)
     is_active = Column("is_active", Boolean)
     product_name = Column("product_name", VARCHAR(32))
-    description = Column("description", VARCHAR(3072))
+    description = Column("description", VARCHAR(400))
     logo_file = Column("logo_file", VARCHAR(64))
     price = Column("price", SmallInteger)
     volume = Column("volume", SmallInteger)

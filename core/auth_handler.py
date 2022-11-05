@@ -1,10 +1,9 @@
+from re import match
 from hashlib import sha3_256
 from service import base_logger
-from re import match
 from database_handler import DatabaseHandler
 from email_handler import EmailHandler
 
-# TODO: БАГ: ПРОПУСТИЛО БРЕДОВЫЙ ЕМЭИЛ ПРИ РЕГИСТРАЦИИ
 
 def log(message: str) -> None:
     module_name = "AUTH_HANDLER"
