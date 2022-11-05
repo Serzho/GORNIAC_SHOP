@@ -36,31 +36,39 @@
             </div>
         </div>
     </header>
+    <div class="container">
     <div class="tabs">
         <input type="radio" name="tab-btn" id="tab-btn-1" value="" checked>
         <label for="tab-btn-1">Личные данные</label>
         <input type="radio" name="tab-btn" id="tab-btn-2" value="">
         <label for="tab-btn-2">Заказы</label>
-        <div id="content-1">
+        <div id="content-1"><div class="profile"><div class="profile__form">
             <p><strong>Имя:</strong></p>
             <form action="../auth/change_password" method="post">
-                <p><strong>Пароль:</strong>
+                <div class="input"><strong>Пароль:</strong>
                     <input type="password" maxlength="25" size="40" name="password" readonly
                         onfocus="this.removeAttribute('readonly')">
-                </p>
-                <input type="submit" value="Сохранить пароль" />
+                </div>
+                <input class="profile__btn" type="submit" value="Сохранить пароль" />
             </form>
             <form action="../auth/change_email" method="post">
-                <p><strong>Почта:</strong>
+                <div class="input"><strong>Почта:</strong>
                     <input maxlength="64" size="40" name="email" placeholder="" readonly
                         onfocus="this.removeAttribute('readonly')">
-                </p>
-                <input type="submit" value="Сохранить почту" />
+                </div>
+                <input class="profile__btn" type="submit" value="Сохранить почту" />
             </form>
+            </div></div>
         </div>
         <div id="content-2">
+            <div class="orders">
+
+            </div>
         </div>
     </div>
+    </div>
 </body>
-
+<footer>
+<img src="static/images/footer.jpg" alt="#" class="footer__image">
+</footer>
 </html>

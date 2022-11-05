@@ -11,7 +11,8 @@ def load_profile_page(profile_html: str, username: str, email: str, message: str
     profile_html = profile_html.replace("<p><strong>Имя:</strong>", f"<p><strong>Имя:</strong> {username}")
     profile_html = profile_html.replace('placeholder=""', f'placeholder="{email}"')
     if message is not None:
-        profile_html = profile_html.replace('<div id="content-1">', f'<div id="content-1">{message}')
+        profile_html = profile_html.replace('<div class="profile__form">',
+                                            f'<div class="profile__form"><p class="warning">{message}</p>')
     for order in orders[::-1]:
         product_table = ''
         for index, product in order["products"].items():
@@ -21,11 +22,11 @@ def load_profile_page(profile_html: str, username: str, email: str, message: str
                         ' method="post"><input type="submit" ' \
                         'value="ОТМЕНИТЬ"/></form></p>' if not order['is_completed'] else ''
         profile_html = profile_html.replace(
-            '<div id="content-2">',
-            f'<div id="content-2">'
-            f'Заказ {order["name"]} от {order["date"]}:'
+            '<div class="orders">',
+            f'<div class="orders">'
+            f'<div class="order__col">Заказ {order["name"]} от {order["date"]}:'
             f' {product_table} <p> ИТОГО: {order["total_price"]}</p><p>Выполнен: {completed}</p>'
-            f'{cancel_button}'
+            f'{cancel_button}</div>'
         )
 
     return profile_html
@@ -61,8 +62,8 @@ def load_admin_panel_page(
 def load_signup_page(signup_html: str, message: str) -> str:
     log(f"Loading signup page with message={message}")
     signup_html = signup_html.replace(
-        '<body>',
-        f'<body> <p><font size="5" color="red" face="Arial">{message}</font></p>'
+        '<div class="login__form"',
+        f'<div class="login__form"> <p class="warning">{message}</p>'
     )
     return signup_html
 
@@ -70,8 +71,8 @@ def load_signup_page(signup_html: str, message: str) -> str:
 def load_login_page(login_html: str, message: str) -> str:
     log(f"Loading login page with message={message}")
     login_html = login_html.replace(
-        '<body>',
-        f'<body> <p><font size="5" color="red" face="Arial">{message}</font></p>'
+        '<div class="login__form"',
+        f'<div class="login__form"> <p class="warning">{message}</p>'
     )
     return login_html
 
@@ -96,30 +97,36 @@ def load_basket_page(
     log(f"Updating basket page for user with name={name} with message={message}")
     total = basket_list.get("total")
     products = basket_list.get("products")
-    basket_html = basket_html.replace('</body>', f'<h3>{name}</h3></body>')
+    basket_html = basket_html.replace('</div></body>', f'<p class="name">{name}</p>'
+                                                       f'<p class="basket__title">Ваша корзина:</p></div></body>')
     if message is not None:
         basket_html = basket_html.replace(
-            '<body>',
-            f'<body> <p><font size="5" color="red" face="Arial">{message}</font></p>'
+            '<p class="basket__title">',
+            f'<p class="name warning">{message}</p><p class="basket__title">'
         )
     for product_name, price_and_amount in products.items():
         price = price_and_amount["price"]
         amount = price_and_amount["amount"]
-        basket_html = basket_html.replace('</body>', f'<p>{product_name}, {price}, {amount} </p> '
+        basket_html = basket_html.replace('</div></body>', f'<div class="basket__product">'
+                                                     f'<p class="basket__name">{product_name}:</p>'
+                                                     f'<p class="product__price">{price}</p>'
                                                      f'<a href="/decrease_from_basket/product={product_name}"'
                                                      f' class="basket__link">'
                                                      f'<img src="static/images/minus.png" alt="" '
                                                      f'height="25px" width="25px"></a> '
+                                                     f'<p class="product__amount"> {amount} </p> '
                                                      f'<a href="/increase_from_basket/product={product_name}" '
                                                      f'class="basket__link">'
                                                      f'<img src="static/images/plus.png" alt="" '
-                                                     f'height="25px" width="25px"></a></body>')
-    basket_html = basket_html.replace('</body>', f'<p>{total}</p>'
-                                                 f'<form action="/order" method="post">'
-                                                 f'<p><strong>ПРОМОКОДЫ:</strong></p>'
+                                                     f'height="25px" width="25px"></a></div></div></body>')
+    basket_html = basket_html.replace('</div></body>', f'<p class="total__price">Итого: {total}</p>'
+                                                 f'<div class="promo">'
+                                                 f'<form action="/order" method="post" class="basket__form">'
+                                                 f'<p class="promo__title"><strong>ПРОМОКОДЫ:</strong></p>'
                                                  f'<p><input type="radio" id="no" name="promocode" value="no" checked>'
                                                  f'<label for="no">(нет)</label></p>'
-                                                 f'<input type="submit" value="Заказать"/></body>')
+                                                 f'<input type="submit" value="Заказать" class="basket__button"/>'
+                                                       f'</div></div></body>')
     if promocodes is not None:
         for promo, sale in promocodes.items():
             basket_html = basket_html.replace('<label for="no">(нет)</label></p>',
@@ -172,8 +179,9 @@ def load_main_page(index_html: str, products: list[dict], is_authorized: bool = 
             )
 
             modal = modal.replace(
-                '<img class="modal-work__photo" src="" alt="#">',
-                f'<img class="modal-work__photo" src="{row["logo_file"]}" alt="#">'
+                '<img class="modal-work__photo" src="">',
+                f'<img class="modal-work__photo" src="{row["logo_file"]}" alt="#" '
+                f'onerror="this.src = \'static/images/logo/alt_logo.png\'">'
             )
 
             modal = modal.replace(
@@ -215,7 +223,7 @@ def load_main_page(index_html: str, products: list[dict], is_authorized: bool = 
 
         product_col = product_col.replace(
             'class="product__image" src=',
-            f'class="product__image" src="{path}"'
+            f'class="product__image" src="{path}" alt="" onerror="this.src = \'static/images/logo/alt_logo.png\'"'
         )
         product_col = product_col.replace(
             '<div class="product__name">',

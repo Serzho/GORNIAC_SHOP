@@ -35,13 +35,20 @@
                 </div>
             </div>
         </header>
+ <div class="container"><div class="login">
+ <div class="login__form">
   <form action="../auth/login" method="post">
-   <p><strong>Логин:</strong>
-    <input maxlength="25" size="40" name="username"></p>
-   <p><strong>Пароль:</strong>
-    <input type="password" maxlength="25" size="40" name="password"></p>
-      <input type="submit" value="Отправить" />
+   <div class="input"><strong>Логин:</strong>
+    <input maxlength="25" size="40" name="username"></div>
+   <div class="input"><strong>Пароль:</strong>
+    <input type="password" maxlength="25" size="40" name="password"></div>
+      <input type="submit" value="Отправить" class="login__btn"/>
   </form>
-  <a href="/signup" class=""> Регистрация</a>
+  <a href="/signup" class="reg__link"> Регистрация</a>
+     </div></div></div>
+
  </body>
+<footer>
+<img src="static/images/footer.jpg" alt="#" class="footer__image">
+</footer>
 </html>
