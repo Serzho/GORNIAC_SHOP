@@ -114,6 +114,24 @@ async def adding_promo(
     return RedirectResponse("/admin_panel/", status_code=303)
 
 
+@app.post("/admin_panel/delete_product", response_class=RedirectResponse)
+async def delete_product(
+        product_info: AdminDeletingProductForm = Depends(AdminDeletingProductForm.as_form),
+        authorize: AuthJWT = Depends()) -> RedirectResponse:
+    log(f"Deleting product from admin panel request: product_info={product_info}")
+    try:
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
+        assert current_user == "admin"
+        log("Admin was authenticated")
+    except (MissingTokenError, JWTDecodeError, AssertionError):
+        log("Authenticated error!")
+        return RedirectResponse("/login")
+    log("Deleting product")
+    database_handler.delete_product(product_info.product_id)
+    return RedirectResponse("/admin_panel/", status_code=303)
+
+
 @app.post("/admin_panel/ban_user")
 async def ban_user(
         ban_info: AdminBanUserForm = Depends(AdminBanUserForm.as_form),

@@ -161,7 +161,7 @@ def load_main_page(index_html: str, products: list[dict], is_authorized: bool = 
                 'data-modal=',
                 f''
             )
-        elif not row["is_active"]:
+        elif row["amount_items"] == 0:
             path = path.replace("logo/", "logo/soldout/soldout_")
             product_col = product_col.replace(
                 'data-modal=',

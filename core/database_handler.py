@@ -187,7 +187,7 @@ class DatabaseHandler:
     def get_product_cols(self) -> list[dict]:
         # TODO: СДЕЛАТЬ НОРМАЛЬНОЕ ОТОБРАЖЕНИЕ ДАТЫ!!!
         log("Getting products from database")
-        products = self.__session.query(Product).all()
+        products = self.__session.query(Product).filter(Product.is_active.is_(True)).all()
         product_cols = []
         log(f"Founded {len(products)} products")
         for el in products:
@@ -287,10 +287,7 @@ class DatabaseHandler:
             product.amount_items = self.__session.query(
                 Item.is_reserved, Item.product_id
             ).filter(Item.is_reserved.is_not(True), Item.product_id == product_id).count()
-            if product.amount_items == 0:
-                product.is_active = False
-            else:
-                product.is_active = True
+            if product.amount_items != 0:
                 product.is_demo = False
             self.__session.commit()
             log(f"Amount items for product with id={product_id} was refreshed")
@@ -451,3 +448,19 @@ class DatabaseHandler:
         order_dict.update({"products": products, "total_price": total_price})
         log("Returning order dict")
         return order_dict
+
+    def delete_product(self, product_id: int):
+        log(f"Deleting product with id={product_id}")
+        product = self.__session.query(Product).filter(Product.product_id == product_id).first()
+        product_items = self.__session.query(Item).filter(
+            Item.product_id == product_id, Item.is_sales.is_not(True), Item.is_reserved.is_not(True)
+        ).all()
+        try:
+            for item in product_items:
+                self.__session.delete(item)
+            product.is_active = False
+            self.__session.commit()
+            log("Product was successfully deleted")
+        except Exception as e:
+            log(f"Delete product: UNKNOWN ERROR: {e}")
+
