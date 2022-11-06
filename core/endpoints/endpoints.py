@@ -572,8 +572,6 @@ async def main_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
         page,
         product_col_rows,
         is_authorized,
-        pages_dict["product_template.html"],
-        pages_dict["modal_product_template.html"]
     )
     if page is None:
         log("index.html not found!")

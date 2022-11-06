@@ -62,117 +62,12 @@ def load_basket_page(
     return basket_html
 
 
-def load_main_page(
-        index_html: str, products: list[dict], is_authorized: bool = False, product_template: str = None, modal_template: str = None) -> str:
+def load_main_page(index_html: str, products: list[dict], is_authorized: bool = False) -> str:
     log(f"Updating main page with {len(products)} products")
-    product_cols = []
-    modals = []
-
-    for row in products:
-        product_col = product_template
-        modal = modal_template
-        path = row["logo_file"]
-
-        if row["is_demo"]:
-            path = "static/images/logo/comingsoon.png"
-            product_col = product_col.replace(
-                'data-modal=',
-                f''
-            )
-        elif row["amount_items"] == 0:
-            path = path.replace("logo/", "logo/soldout/soldout_")
-            product_col = product_col.replace(
-                'data-modal=',
-                f''
-            )
-        else:
-            modal = modal.replace(
-                '<div class="modal" id="">',
-                f'<div class="modal" id="modal_product_{row["product_id"]}">'
-            )
-
-            modal = modal.replace(
-                '<div class="modal__dialog ">',
-                f'<div class="modal__dialog modal__dialog_product_{row["product_id"]}">'
-            )
-
-            modal = modal.replace(
-                '<img class="modal-work__photo" src="">',
-                f'<img class="modal-work__photo" src="{row["logo_file"]}" alt="#" '
-                f'onerror="this.src = \'static/images/logo/alt_logo.png\'">'
-            )
-
-            modal = modal.replace(
-                '<h3 class="modal-work__title">',
-                f'<h3 class="modal-work__title">{row["product_name"]}'
-            )
-
-            modal = modal.replace(
-                '</span>',
-                f'</span>{row["amount_items"]} шт'
-            )
-
-            modal = modal.replace(
-                '<div class="modal-work__about-chars-vgpg">',
-                f'<div class="modal-work__about-chars-vgpg">VG/PG: {row["vg_pg"]}'
-            )
-            modal = modal.replace(
-                '<div class="modal-work__about-chars-nic">',
-                f'<div class="modal-work__about-chars-nic">NIC: {row["nicotine"]} mg/ml'
-            )
-            modal = modal.replace(
-                '<div class="modal-work__about-chars-volume">',
-                f'<div class="modal-work__about-chars-volume">{row["volume"]} ml'
-            )
-
-            modal = modal.replace(
-                '<div class="modal-work__text">',
-                f'<div class="modal-work__text">{row["description"]}'
-            )
-
-            modal = modal.replace(
-                '<a href="#" class="btn  btn__buy">',
-                f'<a href="/add_to_basket/product={row["product_id"]}" class="btn  btn__buy">'
-            )
-            product_col = product_col.replace(
-                'data-modal=',
-                f'data-modal=#modal_product_{row["product_id"]}'
-            )
-
-        product_col = product_col.replace(
-            'class="product__image" src=',
-            f'class="product__image" src="{path}" alt="" onerror="this.src = \'static/images/logo/alt_logo.png\'"'
-        )
-        product_col = product_col.replace(
-            '<div class="product__name">',
-            f'<div class="product__name">{row["product_name"]}'
-        )
-        product_col = product_col.replace(
-            '<div class="product__date">',
-            f'<div class="product__date">{row["dev_date"]}'
-        )
-
-        product_cols.append(product_col)
-        modals.append(modal)
-
-    modal_windows = " ".join(modals)
-    catalog = " ".join(product_cols)
-
-    index_html = index_html.replace(
-        '<div class="catalog">',
-        f'<div class="catalog">{catalog}'
-    )
-
-    index_html = index_html.replace(
-        '<script src="static/js/app.js"></script>',
-        f'{modal_windows}<script src="static/js/app.js"></script>'
-    )
-
-    if not is_authorized:
-        index_html = index_html.replace(
-            'class="btn  btn__buy">в корзину',
-            'class="btn  btn__buy">авторизуйтесь'
-        )
+    index_html = Template(index_html).render({
+        'products': products,
+        'is_authorized': is_authorized
+    })
 
     log("Returning up-to-date main page")
     return index_html

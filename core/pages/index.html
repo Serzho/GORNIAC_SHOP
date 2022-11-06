@@ -61,9 +61,68 @@
 
         <div class="container">
             <div class="catalog">
-
+                {% for product in products %}
+                    <div class="catalog__col">
+                        <div class="product">
+                            {% if product['is_demo'] %}
+                                <img class="product__image" src="static/images/logo/comingsoon.png"
+                                    alt="" onerror="this.src = 'static/images/logo/alt_logo.png'">
+                            {% elif not product['amount_items'] %}
+                                <img class="product__image" src="{{ product['logo_file'].replace('logo/', 'logo/soldout/soldout_') }}"
+                                    alt="" onerror="this.src = 'static/images/logo/alt_logo.png'">
+                            {% else %}
+                                <img class="product__image" src="{{ product['logo_file'] }}"
+                                    alt="" onerror="this.src = 'static/images/logo/alt_logo.png'" data-modal=#modal_product_{{ product['product_id'] }}>
+                            {% endif %}
+                            <div class="product__content">
+                                <div class="product__name">{{ product['product_name'] }}</div>
+                                <div class="product__date">{{ product['dev_date'] }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
+        {% for product in products %}
+            {% if product['is_demo'] or product['is_active'] %}
+            <div class="modal" id="modal_product_{{ product['product_id'] }}">
+                <div class="modal__dialog modal__dialog_product_{{ product['product_id'] }}">
+                    <div class="modal-work">
+                        <button class="modal__close" type="button" data-close>
+                            <img src="static/images/cancel.svg" alt="#">
+                        </button>
+                        <img class="modal-work__photo" src="{{ product['logo_file'] }}" alt="#"
+                        onerror="this.src = 'static/images/logo/alt_logo.png'">
+                        <div class="modal-work__content">
+                            <div class="modal-work__header">
+                                <h3 class="modal-work__title">{{ product['product_name'] }}</h3>
+                                <div class="modal-work__info">
+                                    Наличие
+                                    <span class="modal-work__divider">|</span>
+                                    {{ product['amount_items'] }} шт
+                                </div>
+                                <div class="modal-work__about-chars">
+                                    <div class="modal-work__about-chars-vgpg">VG/PG: {{ product['vg_pg'] }}</div>
+                                    <div class="modal-work__about-chars-nic">NIC: {{ product['nicotine'] }} mg/ml</div>
+                                    <div class="modal-work__about-chars-volume">{{ product['volume'] }} ml</div>
+                                </div>
+                                <div class="modal-work__text">
+                                    {{ product['description'] }}
+                                </div>
+                            </div>
+                            <div class="modal-work__footer">
+                                {% if is_authorized %}
+                                    <a href="/add_to_basket/product={{ product['product_id'] }}" class="btn  btn__buy">в корзину</a>
+                                {% else %}
+                                    <a href="/login" class="btn  btn__buy">авторизуйтесь</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
         <script src="static/js/app.js"></script>
     </main>
 </body>
