@@ -255,7 +255,10 @@ async def cancel_order(
         return RedirectResponse("/login")
     log("Canceling order")
     database_handler.cancel_order(order_name)
-    return RedirectResponse("/", status_code=303)
+    if current_user == "admin":
+        return RedirectResponse("/admin_panel", status_code=303)
+    else:
+        return RedirectResponse("/", status_code=303)
 
 
 @app.get("/admin_panel")

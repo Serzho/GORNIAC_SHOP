@@ -42,10 +42,47 @@
             </div>
         </div>
     </header>
-<div class="container">
-
-</div></body>
+    <div class="container">
+        <p class="name">{{ name }}</p>
+        {% if message %}
+            <p class="name warning">{{ message }}</p>
+        {% endif %}
+        <p class="basket__title">Ваша корзина:</p>
+        {% for product_name, product_chars in products.items() %}
+            <div class="basket__product">
+                <p class="basket__name">{{ product_name }}:</p>
+                <p class="product__price">{{ product_chars['price'] }}</p>
+                <a href="/decrease_from_basket/product={{ product_name }}" class="basket__link">
+                    <img src="static/images/minus.png" alt="" height="25px" width="25px">
+                </a>
+                <p class="product__amount">{{ product_chars['amount'] }}</p> 
+                <a href="/increase_from_basket/product={{ product_name }}" class="basket__link">
+                    <img src="static/images/plus.png" alt="" height="25px" width="25px">
+                </a>
+            </div>
+        {% endfor %}
+        <p class="total__price">Итого: {{ total }}</p>
+        <div class="promo">
+            <form action="/order" method="post" class="basket__form">
+                <p class="promo__title"><strong>ПРОМОКОДЫ:</strong></p>
+                <p>
+                    <input type="radio" id="no" name="promocode" value="no" checked>
+                    <label for="no">(нет)</label>
+                </p>
+                {% if promocodes %}
+                    {% for promo, sale in promocodes.items() %}
+                        <p>
+                            <input type="radio" id="{{ promo }}" name="promocode" value="{{ promo }}">
+                            <label for="{{ promo }}"> {{ sale }} руб.</label>
+                        </p>
+                    {% endfor %}
+                {% endif %}
+                <input type="submit" value="Заказать" class="basket__button" />
+        </div>
+    </div>
+</body>
 <footer>
-<img src="static/images/footer.jpg" alt="#" class="footer__image">
+    <img src="static/images/footer.jpg" alt="#" class="footer__image">
 </footer>
+
 </html>

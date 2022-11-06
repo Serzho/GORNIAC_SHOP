@@ -17,28 +17,9 @@ def load_profile_page(profile_html: str, username: str, email: str, message: str
 
 def load_admin_panel_page(
         panel_html: str, orders: list[dict] or None, users: list[dict], products: list[dict] or None) -> str:
-    for order in orders[::-1]:
-        product_table = ''
-        for index, product in order["products"].items():
-            product_table += f"<p>{product['product_name']} {product['amount']} шт.: {product['total']}</p>"
-        panel_html = panel_html.replace(
-            '<h2> РАБОТА С ЗАКАЗАМИ </h2>',
-            f'<h2> РАБОТА С ЗАКАЗАМИ </h2>'
-            f'Заказ {order["name"]} от {order["date"]} для {order["username"]}, id {order["user_id"]}:'
-            f' {product_table} <p> ИТОГО: {order["total_price"]}</p>'
-            f'<p><form action="/admin_panel/complete_order{order["name"].replace("#", ".")}" method="post">'
-            f'<input type="submit" value="ВЫПОЛНИТЬ"/></form></p>'
-            f'<p><form action="/cancel_order{order["name"].replace("#", ".")}" method="post">'
-            f'<input type="submit" value="ОТМЕНИТЬ"/></form></p>')
-    for user in users:
-        panel_html = panel_html.replace('<p>Пользователи</p><div class="dropdown_block"><ul>',
-                                        f'<p>Пользователи</p><div class="dropdown_block"><ul>'
-                                        f'<li>{user["name"]}, id={user["id"]}, бан={user["is_banned"]}</li>')
-    if products is not None:
-        for product in products:
-            panel_html = panel_html.replace('<p>Продукты</p><div class="dropdown_block"><ul>',
-                                            '<p>Продукты</p><div class="dropdown_block"><ul>'
-                                            f'<li>{product["name"]}, id={product["id"]}, кол-во={product["amount"]}')
+    panel_html = Template(panel_html).render({
+        'users': users, 'products': products, 'orders': orders
+    })
     return panel_html
 
 
@@ -70,44 +51,13 @@ def load_basket_page(
         basket_html: str, name: str, basket_list: dict, message: str or None, promocodes: dict or None
 ) -> str:
     log(f"Updating basket page for user with name={name} with message={message}")
-    total = basket_list.get("total")
-    products = basket_list.get("products")
-    basket_html = basket_html.replace('</div></body>', f'<p class="name">{name}</p>'
-                                                       f'<p class="basket__title">Ваша корзина:</p></div></body>')
-    if message is not None:
-        basket_html = basket_html.replace(
-            '<p class="basket__title">',
-            f'<p class="name warning">{message}</p><p class="basket__title">'
-        )
-    for product_name, price_and_amount in products.items():
-        price = price_and_amount["price"]
-        amount = price_and_amount["amount"]
-        basket_html = basket_html.replace('</div></body>', f'<div class="basket__product">'
-                                                     f'<p class="basket__name">{product_name}:</p>'
-                                                     f'<p class="product__price">{price}</p>'
-                                                     f'<a href="/decrease_from_basket/product={product_name}"'
-                                                     f' class="basket__link">'
-                                                     f'<img src="static/images/minus.png" alt="" '
-                                                     f'height="25px" width="25px"></a> '
-                                                     f'<p class="product__amount"> {amount} </p> '
-                                                     f'<a href="/increase_from_basket/product={product_name}" '
-                                                     f'class="basket__link">'
-                                                     f'<img src="static/images/plus.png" alt="" '
-                                                     f'height="25px" width="25px"></a></div></div></body>')
-    basket_html = basket_html.replace('</div></body>', f'<p class="total__price">Итого: {total}</p>'
-                                                 f'<div class="promo">'
-                                                 f'<form action="/order" method="post" class="basket__form">'
-                                                 f'<p class="promo__title"><strong>ПРОМОКОДЫ:</strong></p>'
-                                                 f'<p><input type="radio" id="no" name="promocode" value="no" checked>'
-                                                 f'<label for="no">(нет)</label></p>'
-                                                 f'<input type="submit" value="Заказать" class="basket__button"/>'
-                                                       f'</div></div></body>')
-    if promocodes is not None:
-        for promo, sale in promocodes.items():
-            basket_html = basket_html.replace('<label for="no">(нет)</label></p>',
-                                              '<label for="no">(нет)</label></p>'
-                                              f'<input type="radio" id="{promo}" name="promocode" value="{promo}">'
-                                              f'<label for="{promo}">{sale} руб.</label></p>')
+    basket_html = Template(basket_html).render({
+        'promocodes': promocodes,
+        'total': basket_list.get("total"),
+        'products':  basket_list.get("products"),
+        'message': message,
+        'name': name
+    })
     log("Returning up-to-date basket page")
     return basket_html
 

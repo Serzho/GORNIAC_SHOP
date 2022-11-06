@@ -2,86 +2,130 @@
 <html lang="ru">
 
 <head>
-    <meta charset="UTF-8">
-    <title>ПАНЕЛЬ АДМИНИСТРАТОРА</title>
-    <link href="/static/css/style.css" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;0,700;1,300&display=swap"
-        rel="stylesheet">
-    <link rel="shortcut icon" href="static/images/favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8">
+  <title>ПАНЕЛЬ АДМИНИСТРАТОРА</title>
+  <link href="/static/css/style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;0,700;1,300&display=swap"
+    rel="stylesheet">
+  <link rel="shortcut icon" href="static/images/favicon.ico" type="image/x-icon">
 </head>
 
 <body>
-<h1>ADMIN PANEL</h1>
-<h2> БАЗА ДАННЫХ</h2>
-<div class="admin_lists">
-
-<div class="drop">
-  <p>Пользователи</p><div class="dropdown_block"><ul>
-    </ul>
+  <h1>ADMIN PANEL</h1>
+  <h2> БАЗА ДАННЫХ</h2>
+  <div class="admin_lists">
+    <div class="drop">
+      <p>Пользователи</p>
+      <div class="dropdown_block">
+        <ul>
+          {% for user in users %}
+            <li>{{ user["name"] }}, id={{ user["id"] }}, бан={{ user["is_banned"] }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="drop">
+      <p>Продукты</p>
+      <div class="dropdown_block">
+        <ul>
+          {% if products %}
+            {% for product in products %}
+              <li>{{ product["name"] }}, id={{ product["id"] }}, кол-во={{ product["amount"] }}</li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
   </div>
-</div>
-<div class="drop">
-  <p>Продукты</p><div class="dropdown_block"><ul>
-    </ul>
-  </div>
-</div>
-</div>
-<h2> ОБНОВЛЕНИЕ КОЛИЧЕСТВА </h2>
+  <h2> ОБНОВЛЕНИЕ КОЛИЧЕСТВА </h2>
   <form action="/admin_panel/refresh_amounts" method="post">
-      <input type="submit" value="Обновить" />
+    <input type="submit" value="Обновить" />
   </form>
-<h2> ДОБАВЛЕНИЕ ЭКЗЕМПЛЯРОВ </h2>
+  <h2> ДОБАВЛЕНИЕ ЭКЗЕМПЛЯРОВ </h2>
   <form action="/admin_panel/adding_item" method="post">
-   <p><strong>PRODUCT_ID:</strong>
-    <input maxlength="3" size="40" name="product_id"></p>
-   <p><strong>COUNT:</strong>
-       <input maxlength="3" size="40" name="count"></p>
-      <input type="submit" value="Добавить" />
+    <p><strong>PRODUCT_ID:</strong>
+      <input maxlength="3" size="40" name="product_id">
+    </p>
+    <p><strong>COUNT:</strong>
+      <input maxlength="3" size="40" name="count">
+    </p>
+    <input type="submit" value="Добавить" />
   </form>
-<h2> ВЫДАЧА ПРОМОКОДОВ </h2>
+  <h2> ВЫДАЧА ПРОМОКОДОВ </h2>
   <form action="/admin_panel/adding_promo" method="post">
-   <p><strong>USER_ID:</strong>
-    <input maxlength="3" size="40" name="user_id"></p>
-   <p><strong>SALE:</strong>
-       <input maxlength="3" size="40" name="sale"></p>
-      <input type="submit" value="Добавить" />
+    <p><strong>USER_ID:</strong>
+      <input maxlength="3" size="40" name="user_id">
+    </p>
+    <p><strong>SALE:</strong>
+      <input maxlength="3" size="40" name="sale">
+    </p>
+    <input type="submit" value="Добавить" />
   </form>
-<h2> БАН ПОЛЬЗОВАТЕЛЕЙ </h2>
+  <h2> БАН ПОЛЬЗОВАТЕЛЕЙ </h2>
   <form action="/admin_panel/ban_user" method="post">
-   <p><strong>USER_ID:</strong>
-    <input maxlength="3" size="40" name="user_id"></p>
-   <p><strong>BAN_DESCRIPTION:</strong>
-       <input maxlength="64" size="80" name="ban_description"></p>
-      <input type="submit" value="Забанить" />
+    <p><strong>USER_ID:</strong>
+      <input maxlength="3" size="40" name="user_id">
+    </p>
+    <p><strong>BAN_DESCRIPTION:</strong>
+      <input maxlength="64" size="80" name="ban_description">
+    </p>
+    <input type="submit" value="Забанить" />
   </form>
-<h2> ДОБАВЛЕНИЕ ПРОДУКТА </h2>
+  <h2> ДОБАВЛЕНИЕ ПРОДУКТА </h2>
   <form action="/admin_panel/adding_product" method="post">
-   <p><strong>NICOTINE:</strong>
-    <input maxlength="3" size="40" name="nicotine"></p>
-      <p><strong>VG_PG:</strong>
-    <input maxlength="8" size="40" name="vp_pg"></p>
-      <p><strong>NAME:</strong>
-    <input maxlength="32" size="40" name="name"></p>
-      <p><strong>DESCRIPTION:</strong>
-    <input maxlength="1024" size="1500" name="description"></p>
-      <p><strong>LOGO_FILE:</strong>
-    <input maxlength="64" size="80" name="logo_file"></p>
-      <p><strong>PRICE:</strong>
-    <input maxlength="8" size="40" name="price"></p>
-      <p><strong>VOLUME:</strong>
-    <input maxlength="3" size="40" name="volume"></p>
-   <p><strong>RATING:</strong>
-       <input maxlength="3" size="40" name="rating"></p>
-      <input type="submit" value="Добавить" />
+    <p><strong>NICOTINE:</strong>
+      <input maxlength="3" size="40" name="nicotine">
+    </p>
+    <p><strong>VG_PG:</strong>
+      <input maxlength="8" size="40" name="vp_pg">
+    </p>
+    <p><strong>NAME:</strong>
+      <input maxlength="32" size="40" name="name">
+    </p>
+    <p><strong>DESCRIPTION:</strong>
+      <input maxlength="1024" size="1500" name="description">
+    </p>
+    <p><strong>LOGO_FILE:</strong>
+      <input maxlength="64" size="80" name="logo_file">
+    </p>
+    <p><strong>PRICE:</strong>
+      <input maxlength="8" size="40" name="price">
+    </p>
+    <p><strong>VOLUME:</strong>
+      <input maxlength="3" size="40" name="volume">
+    </p>
+    <p><strong>RATING:</strong>
+      <input maxlength="3" size="40" name="rating">
+    </p>
+    <input type="submit" value="Добавить" />
   </form>
-<h2> УДАЛЕНИЕ ПРОДУКТА </h2>
+  <h2> УДАЛЕНИЕ ПРОДУКТА </h2>
   <form action="/admin_panel/delete_product" method="post">
-   <p><strong>PRODUCT_ID:</strong>
-       <input maxlength="3" size="40" name="product_id"></p>
-      <input type="submit" value="Удалить" />
+    <p><strong>PRODUCT_ID:</strong>
+      <input maxlength="3" size="40" name="product_id">
+    </p>
+    <input type="submit" value="Удалить" />
   </form>
-<h2> РАБОТА С ЗАКАЗАМИ </h2>
+  <h2> РАБОТА С ЗАКАЗАМИ </h2>
+  {% for order in orders[::-1] %}
+    <div class="order__col">
+      Заказ {{ order["name"] }} от {{ order["date"] }} для {{ order['username'] }}, {{ order['user_id'] }}:
+      {% for index, product in order["products"].items() %}
+        <p>{{ product['product_name'] }} {{ product['amount'] }} шт.: {{ product['total'] }} руб.</p>
+      {% endfor %}
+        <p> ИТОГО: {{ order["total_price"] }} руб.</p>
+        <p>
+          <form action="admin_panel/complete_order{{ order['name'].replace('#', '.') }}" method="post">
+              <input type="submit" value="ВЫПОЛНИТЬ"/>
+          </form>
+      </p>
+        <p>
+            <form action="/cancel_order{{ order['name'].replace('#', '.') }}" method="post">
+                <input type="submit" value="ОТМЕНИТЬ"/>
+            </form>
+        </p>
+      </div>
+    {% endfor %}
 </body>
 
 </html>
