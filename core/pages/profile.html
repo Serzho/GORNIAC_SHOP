@@ -37,38 +37,63 @@
         </div>
     </header>
     <div class="container">
-    <div class="tabs">
-        <input type="radio" name="tab-btn" id="tab-btn-1" value="" checked>
-        <label for="tab-btn-1">Личные данные</label>
-        <input type="radio" name="tab-btn" id="tab-btn-2" value="">
-        <label for="tab-btn-2">Заказы</label>
-        <div id="content-1"><div class="profile"><div class="profile__form">
-            <p><strong>Имя:</strong></p>
-            <form action="../auth/change_password" method="post">
-                <div class="input"><strong>Пароль:</strong>
-                    <input type="password" maxlength="25" size="40" name="password" readonly
-                        onfocus="this.removeAttribute('readonly')">
+        <div class="tabs">
+            <input type="radio" name="tab-btn" id="tab-btn-1" value="" checked>
+            <label for="tab-btn-1">Личные данные</label>
+            <input type="radio" name="tab-btn" id="tab-btn-2" value="">
+            <label for="tab-btn-2">Заказы</label>
+            <div id="content-1">
+                <div class="profile">
+                    <div class="profile__form">
+                        {% if message %}
+                            <p class="warning">{{ message }}</p>
+                        {% endif %}
+                        <p><strong>Имя:</strong>{{ username }}</p>
+                        <form action="../auth/change_password" method="post">
+                            <div class="input"><strong>Пароль:</strong>
+                                <input type="password" maxlength="25" size="40" name="password" readonly
+                                    onfocus="this.removeAttribute('readonly')">
+                            </div>
+                            <input class="profile__btn" type="submit" value="Сохранить пароль" />
+                        </form>
+                        <form action="../auth/change_email" method="post">
+                            <div class="input"><strong>Почта:</strong>
+                                <input maxlength="64" size="40" name="email" placeholder="{{ email }}" readonly
+                                    onfocus="this.removeAttribute('readonly')">
+                            </div>
+                            <input class="profile__btn" type="submit" value="Сохранить почту" />
+                        </form>
+                    </div>
                 </div>
-                <input class="profile__btn" type="submit" value="Сохранить пароль" />
-            </form>
-            <form action="../auth/change_email" method="post">
-                <div class="input"><strong>Почта:</strong>
-                    <input maxlength="64" size="40" name="email" placeholder="" readonly
-                        onfocus="this.removeAttribute('readonly')">
+            </div>
+            <div id="content-2">
+                <div class="orders">
+                    {% for order in orders[::-1] %}
+                        <div class="order__col">
+                            Заказ {{ order["name"] }} от {{ order["date"] }}:
+                            {% for index, product in order["products"].items() %}
+                                <p>{{ product['product_name'] }} {{ product['amount'] }} шт.: {{ product['total'] }} руб.</p>
+                            {% endfor %}
+                            <p> ИТОГО: {{ order["total_price"] }} руб.</p>
+                            {% if order['is_completed'] %}
+                                <p>Выполнен: да</p>
+                            {% else %}
+                                <p>Выполнен: нет</p>
+                                <p>
+                                    <form action="/cancel_order{{ order['name'].replace('#', '.') }}" method="post">
+                                        <input type="submit" value="ОТМЕНИТЬ"/>
+                                    </form>
+                                </p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
                 </div>
-                <input class="profile__btn" type="submit" value="Сохранить почту" />
-            </form>
-            </div></div>
-        </div>
-        <div id="content-2">
-            <div class="orders">
-
             </div>
         </div>
     </div>
-    </div>
 </body>
 <footer>
-<img src="static/images/footer.jpg" alt="#" class="footer__image">
+    <img src="static/images/footer.jpg" alt="#" class="footer__image">
 </footer>
+
 </html>

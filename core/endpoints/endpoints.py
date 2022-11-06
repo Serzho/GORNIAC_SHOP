@@ -152,7 +152,7 @@ async def ban_user(
 @app.get("/login", response_class=HTMLResponse)
 async def login_page() -> HTMLResponse:
     log("Getting login page request")
-    return HTMLResponse(content=pages_dict["login.html"], status_code=200)
+    return HTMLResponse(content=load_login_page(pages_dict["login.html"]), status_code=200)
 
 
 @app.get("/login{message}", response_class=HTMLResponse)
@@ -297,7 +297,7 @@ async def contacts_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
 @app.get("/signup", response_class=HTMLResponse)
 async def signup_page() -> HTMLResponse:
     log("Getting signup page request")
-    return HTMLResponse(content=pages_dict["signup.html"], status_code=200)
+    return HTMLResponse(content=load_signup_page(pages_dict["signup.html"]), status_code=200)
 
 
 @app.get("/ban", response_class=HTMLResponse)
@@ -565,7 +565,13 @@ async def main_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
     except (MissingTokenError, JWTDecodeError):
         is_authorized, username = False, None
         log(f"Main page request from non-authorized user")
-    full_page = load_main_page(page, product_col_rows, is_authorized)
+    full_page = load_main_page(
+        page,
+        product_col_rows,
+        is_authorized,
+        pages_dict["product_template.html"],
+        pages_dict["modal_product_template.html"]
+    )
     if page is None:
         log("index.html not found!")
         raise FileNotFoundError("index.html not found!")

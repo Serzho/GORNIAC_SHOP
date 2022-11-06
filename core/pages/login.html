@@ -36,7 +36,9 @@
             </div>
         </header>
  <div class="container"><div class="login">
- <div class="login__form">
+ <div class="login__form"> {% if message %}
+    <p class="warning">{{ message }}</p>
+    {% endif %}
   <form action="../auth/login" method="post">
    <div class="input"><strong>Логин:</strong>
     <input maxlength="25" size="40" name="username"></div>

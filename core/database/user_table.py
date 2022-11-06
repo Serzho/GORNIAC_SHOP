@@ -4,7 +4,6 @@ from sqlalchemy import Column, Integer, VARCHAR, Boolean, Date, JSON
 from core.database.init_database import Base
 
 
-
 class User(Base):
     __tablename__ = 'user'
     user_id = Column("user_id", Integer, primary_key=True, autoincrement=True)

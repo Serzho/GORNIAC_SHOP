@@ -3,7 +3,6 @@ from sqlalchemy import Column, Integer, VARCHAR, Boolean, SmallInteger, Date, Fo
 from init_database import Base
 
 
-
 class Reservation(Base):
     __tablename__ = 'reservation'
     reservation_id = Column("reservation_id", Integer, primary_key=True, autoincrement=True)

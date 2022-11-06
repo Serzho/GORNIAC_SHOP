@@ -1,3 +1,4 @@
+from jinja2 import Template
 from service import base_logger
 
 
@@ -8,27 +9,9 @@ def log(message: str) -> None:
 def load_profile_page(profile_html: str, username: str, email: str, message: str or None,
                       orders: list[dict] or None) -> str:
     log(f"Loading profile page: user={username}, email={email}, message={message} and {len(orders)} orders")
-    profile_html = profile_html.replace("<p><strong>Имя:</strong>", f"<p><strong>Имя:</strong> {username}")
-    profile_html = profile_html.replace('placeholder=""', f'placeholder="{email}"')
-    if message is not None:
-        profile_html = profile_html.replace('<div class="profile__form">',
-                                            f'<div class="profile__form"><p class="warning">{message}</p>')
-    for order in orders[::-1]:
-        product_table = ''
-        for index, product in order["products"].items():
-            product_table += f"<p>{product['product_name']} {product['amount']} шт.: {product['total']}</p>"
-        completed = "да" if order["is_completed"] else "нет"
-        cancel_button = f'<p><form action="/cancel_order{order["name"].replace("#", ".")}"' \
-                        ' method="post"><input type="submit" ' \
-                        'value="ОТМЕНИТЬ"/></form></p>' if not order['is_completed'] else ''
-        profile_html = profile_html.replace(
-            '<div class="orders">',
-            f'<div class="orders">'
-            f'<div class="order__col">Заказ {order["name"]} от {order["date"]}:'
-            f' {product_table} <p> ИТОГО: {order["total_price"]}</p><p>Выполнен: {completed}</p>'
-            f'{cancel_button}</div>'
-        )
-
+    profile_html = Template(profile_html).render({
+        "message": message, "username": username, "email": email, "orders": orders
+    })
     return profile_html
 
 
@@ -59,22 +42,14 @@ def load_admin_panel_page(
     return panel_html
 
 
-def load_signup_page(signup_html: str, message: str) -> str:
+def load_signup_page(signup_html: str, message: str = None) -> str:
     log(f"Loading signup page with message={message}")
-    signup_html = signup_html.replace(
-        '<div class="login__form"',
-        f'<div class="login__form"> <p class="warning">{message}</p>'
-    )
-    return signup_html
+    return Template(signup_html).render({"message": message})
 
 
-def load_login_page(login_html: str, message: str) -> str:
+def load_login_page(login_html: str, message: str = None) -> str:
     log(f"Loading login page with message={message}")
-    login_html = login_html.replace(
-        '<div class="login__form"',
-        f'<div class="login__form"> <p class="warning">{message}</p>'
-    )
-    return login_html
+    return Template(login_html).render({"message": message})
 
 
 def add_authorized_effects(page_html: str, username: str) -> str:
@@ -137,18 +112,11 @@ def load_basket_page(
     return basket_html
 
 
-def load_main_page(index_html: str, products: list[dict], is_authorized: bool = False) -> str:
+def load_main_page(
+        index_html: str, products: list[dict], is_authorized: bool = False, product_template: str = None, modal_template: str = None) -> str:
     log(f"Updating main page with {len(products)} products")
     product_cols = []
     modals = []
-
-    template_file = open("templates/product_template.html", "r")
-    product_template = template_file.read()
-    template_file.close()
-
-    template_file = open("templates/modal_product_template.html", "r", encoding="UTF-8")
-    modal_template = template_file.read()
-    template_file.close()
 
     for row in products:
         product_col = product_template

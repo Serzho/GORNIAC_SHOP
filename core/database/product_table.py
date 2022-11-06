@@ -3,7 +3,6 @@ from sqlalchemy import Column, VARCHAR, Boolean, SmallInteger, Date
 from init_database import Base
 
 
-
 class Product(Base):
     __tablename__ = 'product'
     product_id = Column("product_id", SmallInteger, primary_key=True, autoincrement=True)
