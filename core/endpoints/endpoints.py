@@ -574,6 +574,10 @@ async def main_page(authorize: AuthJWT = Depends()) -> HTMLResponse:
         return HTMLResponse(content=full_page, status_code=200)
 
 
+def not_found_page() -> HTMLResponse:
+    return HTMLResponse(content=pages_dict["not_found.html"])
+
+
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
@@ -582,4 +586,6 @@ async def add_process_time_header(request: Request, call_next):
     print(f"Process time {process_time}")
     log(f"Process time {process_time}")
     response.headers["X-Process-Time"] = str(process_time)
+    if response.status_code == 404:
+        return not_found_page()
     return response

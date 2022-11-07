@@ -693,3 +693,7 @@ footer {
   font-weight: 800;
 
 }
+
+.header__name{
+    text-align: center;
+}
