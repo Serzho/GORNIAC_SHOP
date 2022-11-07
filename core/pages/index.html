@@ -70,7 +70,7 @@
                             {% elif not product['amount_items'] %}
                                 <img class="product__image"
                                      src="{{ product['logo_file'].replace('logo/', 'logo/soldout/soldout_') }}"
-                                     alt="" onerror="this.src = 'static/images/logo/alt_logo.png'">
+                                     alt="" onerror="this.src = 'static/images/logo/soldout/soldout_alt_logo.png'">
                             {% else %}
                                 <img class="product__image" src="{{ product['logo_file'] }}"
                                     alt="" onerror="this.src = 'static/images/logo/alt_logo.png'"

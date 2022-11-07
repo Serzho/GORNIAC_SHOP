@@ -302,13 +302,13 @@ h1 {
 }
 
 .modal-work__text {
-  margin-top: 3rem;
+  margin-top: 2rem;
   font-size: 1.4rem;
   color: #6a696b;
-  line-height: 1.5;
+  line-height: 1.2;
   font-weight: 300;
   height: 400px;
-
+  text-align: justify;
 }
 
 .modal-work__footer {
