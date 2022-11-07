@@ -1,3 +1,4 @@
+from time import sleep
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import create_engine
@@ -14,6 +15,7 @@ def log(message: str) -> None:
 
 def load_session() -> Session:
     log(f"Loading database session with echo={ECHO_FLAG}")
+    sleep(5)  # waiting for starting postgresql in docker
     engine = create_engine(
         f"{DB_DIALECT}+{DB_DRIVER}://{DB_USER}:{DB_PASSWORD}@{HOST_DB}/{DB_NAME}",
         echo=ECHO_FLAG

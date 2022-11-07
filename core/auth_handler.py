@@ -1,7 +1,7 @@
 from re import match
 from hashlib import sha3_256
-from service import base_logger
-from database_handler import DatabaseHandler
+from core.service import base_logger
+from core.database_handler import DatabaseHandler
 
 
 def log(message: str) -> None:

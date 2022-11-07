@@ -1,10 +1,10 @@
 from sqlalchemy.orm.attributes import flag_modified
 from datetime import datetime
-from database.init_database import load_session
-from database.user_table import User
-from database.reservation_table import Reservation
-from database.product_table import Product
-from database.item_table import Item
+from core.database.init_database import load_session
+from core.database.user_table import User
+from core.database.reservation_table import Reservation
+from core.database.product_table import Product
+from core.database.item_table import Item
 from datetime import date
 from core.service import base_logger
 

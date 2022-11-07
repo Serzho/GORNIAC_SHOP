@@ -1,6 +1,6 @@
 from datetime import date
 from sqlalchemy import Column, VARCHAR, Boolean, SmallInteger, Date
-from init_database import Base
+from core.database.init_database import Base
 
 
 class Product(Base):

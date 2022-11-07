@@ -1,4 +1,4 @@
-version: "3.9"
+version: "1.0.0"
 services:
   postgres:
     container_name: postgres_container
@@ -27,3 +27,14 @@ services:
       - ./pgadmin:/var/lib/pgadmin
     ports:
       - "5050:80"
+
+  fastapi:
+    build: .
+    image: gorniac_shop
+    container_name: fastapi_container
+    links:
+      - postgres
+    volumes:
+      - ./app:/app
+    ports:
+      - 8000:8000

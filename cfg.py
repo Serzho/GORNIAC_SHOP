@@ -1,7 +1,7 @@
 import sys
 
-sys.path.append("database")
 sys.path.append("core")
+sys.path.append("database")
 
 HOST_API = "localhost"
 PORT_API = 8000
@@ -28,3 +28,5 @@ EMAIL_HOST = "smtp.mail.ru"
 EMAIL = "kudrsv.kudrsv@mail.ru"
 EMAIL_PORT = 465
 EMAIL_PASS = "DB4rppxQy8buS3EUJ3rV"
+
+DOCKERIZE = False

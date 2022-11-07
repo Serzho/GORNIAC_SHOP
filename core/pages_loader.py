@@ -1,5 +1,5 @@
 from jinja2 import Template
-from service import base_logger
+from core.service import base_logger
 
 
 def log(message: str) -> None:
