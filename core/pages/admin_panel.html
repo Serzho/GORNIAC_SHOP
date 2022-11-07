@@ -114,18 +114,14 @@
         <p>{{ product['product_name'] }} {{ product['amount'] }} шт.: {{ product['total'] }} руб.</p>
       {% endfor %}
         <p> ИТОГО: {{ order["total_price"] }} руб.</p>
-        <p>
           <form action="admin_panel/complete_order{{ order['name'].replace('#', '.') }}" method="post">
               <input type="submit" value="ВЫПОЛНИТЬ"/>
           </form>
-      </p>
-        <p>
             <form action="/cancel_order{{ order['name'].replace('#', '.') }}" method="post">
-                <input type="submit" value="ОТМЕНИТЬ"/>
+                <input type="submit" value="ОТМЕНИТЬ">
             </form>
-        </p>
-      </div>
-    {% endfor %}
+    </div>
+  {% endfor %}
 </body>
 
 </html>

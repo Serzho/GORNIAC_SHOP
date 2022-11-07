@@ -4,7 +4,7 @@ from service import base_logger
 
 
 def log(message: str) -> None:
-    module_name = "IMAGEUPDATER"
+    module_name = "IMAGE_UPDATER"
     base_logger(msg=message, module_name=module_name)
 
 

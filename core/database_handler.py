@@ -1,6 +1,4 @@
-import sys
 from sqlalchemy.orm.attributes import flag_modified
-sys.path.append("database")
 from datetime import datetime
 from database.init_database import load_session
 from database.user_table import User
@@ -12,7 +10,7 @@ from core.service import base_logger
 
 
 def log(message: str) -> None:
-    module_name = "DBHANDLER"
+    module_name = "DATABASE_HANDLER"
     base_logger(msg=message, module_name=module_name)
 
 
@@ -47,7 +45,7 @@ class DatabaseHandler:
             user.ban_description = ban_description
             self.__session.commit()
             log("Canceling user orders")
-            self.cancel_orders_dict(user.reservations)
+            self.__cancel_orders_dict(user.reservations)
             log("User was successfully banned")
         except Exception as e:
             log(f"Ban user: UNKNOWN ERROR: {e}")
@@ -86,7 +84,7 @@ class DatabaseHandler:
         except Exception as e:
             log(f"Cancel order: UNKNOWN ERROR: {e}")
 
-    def cancel_orders_dict(self, reservations: dict) -> None:
+    def __cancel_orders_dict(self, reservations: dict) -> None:
         log(f"Canceling order dict: reservations={reservations}")
         product_list = set()
         for index, reservation_name in reservations.items():
@@ -185,7 +183,6 @@ class DatabaseHandler:
         return {"product_name": query.product_name, "price": query.price}
 
     def get_product_cols(self) -> list[dict]:
-        # TODO: СДЕЛАТЬ НОРМАЛЬНОЕ ОТОБРАЖЕНИЕ ДАТЫ!!!
         log("Getting products from database")
         products = self.__session.query(Product).filter(Product.is_active.is_(True)).all()
         product_cols = []
@@ -319,6 +316,7 @@ class DatabaseHandler:
 
     def delete_promo(self, username: str, promo: str) -> None:
         log(f"Deleting promocode: user={username}, promocode={promo}")
+        self.__session.rollback()
         user = self.__session.query(User).filter(username == User.name).first()
         promo_dict = user.promo_codes
         if promo_dict is None:
@@ -401,7 +399,7 @@ class DatabaseHandler:
         log(f"Returning incomplete {len(names_set)} orders")
         return names_set
 
-    def get_product_name(self, product_id: int) -> str:
+    def __get_product_name(self, product_id: int) -> str:
         return self.__session.query(
             Product.product_id, Product.product_name
         ).filter(product_id == Product.product_id).first().product_name
@@ -440,7 +438,7 @@ class DatabaseHandler:
         for el in reservs:
             i += 1
             products.update({i: {
-                "product_name": self.get_product_name(el.product_id),
+                "product_name": self.__get_product_name(el.product_id),
                 "amount": el.amount,
                 "total": el.total
             }})
@@ -464,4 +462,3 @@ class DatabaseHandler:
             log("Product was successfully deleted")
         except Exception as e:
             log(f"Delete product: UNKNOWN ERROR: {e}")
-

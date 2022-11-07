@@ -4,7 +4,7 @@ from service import base_logger
 
 
 def log(message: str) -> None:
-    module_name = "EMAILHANDLER"
+    module_name = "EMAIL_HANDLER"
     base_logger(msg=message, module_name=module_name)
 
 
@@ -51,4 +51,3 @@ class EmailHandler:
 if __name__ == "__main__":
     email_handler = EmailHandler()
     email_handler.send_order_email("#fsdsdf#a", "GAY", "kudrsv.kudrsv@gmail.com")
-

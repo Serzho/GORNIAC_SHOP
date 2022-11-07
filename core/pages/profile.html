@@ -79,11 +79,9 @@
                                 <p>Выполнен: да</p>
                             {% else %}
                                 <p>Выполнен: нет</p>
-                                <p>
-                                    <form action="/cancel_order{{ order['name'].replace('#', '.') }}" method="post">
-                                        <input type="submit" value="ОТМЕНИТЬ"/>
-                                    </form>
-                                </p>
+                                <form action="/cancel_order{{ order['name'].replace('#', '.') }}" method="post">
+                                    <input type="submit" value="ОТМЕНИТЬ"/>
+                                </form>
                             {% endif %}
                         </div>
                     {% endfor %}

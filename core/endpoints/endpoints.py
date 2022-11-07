@@ -181,7 +181,7 @@ async def order(order_info: OrderForm = Depends(OrderForm.as_form),
     except (MissingTokenError, JWTDecodeError):
         log("User not authorized for order!")
         return RedirectResponse("/login")
-    success, response_msg = basket_handler.check_order(current_user, order_info.promocode)
+    success, response_msg = basket_handler.check_order(current_user)
     if success:
         log(f"Ordering for user {current_user}")
         basket_handler.order(current_user, order_info.promocode)
@@ -271,10 +271,10 @@ async def admin_panel_page(authorize: AuthJWT = Depends()) -> HTMLResponse or Re
         if current_user == "admin":
             log("User is admin, getting admin panel")
             page = add_authorized_effects(page, current_user)
-            incompleted_orders = basket_handler.get_incompleted_orders_list()
+            incomplete_orders = basket_handler.get_incomplete_orders_list()
             users = database_handler.get_all_users()
             products = database_handler.get_all_products()
-            page = load_admin_panel_page(page, incompleted_orders, users, products)
+            page = load_admin_panel_page(page, incomplete_orders, users, products)
             return HTMLResponse(content=page, status_code=200)
     except (MissingTokenError, JWTDecodeError):
         log("Admin panel request from non-authorized user!")
@@ -330,11 +330,6 @@ async def add_to_basket(product_id: str, authorize: AuthJWT = Depends()) -> Redi
     basket_handler.add_product(current_user, int(product_id))
     log("Successfully added, redirecting to main page")
     return RedirectResponse(url="/", status_code=303)
-
-
-@app.get("/test")  # TODO: REMOVE FOR RELEASE
-async def test_func():
-    print(basket_handler.get_orders_list("admin"))
 
 
 @app.get("/increase_from_basket/product={product_name}", response_class=RedirectResponse)

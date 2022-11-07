@@ -3,7 +3,7 @@ from service import base_logger
 
 
 def log(message: str) -> None:
-    base_logger(msg=message, module_name="PAGESLOADER")
+    base_logger(msg=message, module_name="PAGES_LOADER")
 
 
 def load_profile_page(profile_html: str, username: str, email: str, message: str or None,

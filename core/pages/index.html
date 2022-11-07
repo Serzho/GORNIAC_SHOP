@@ -68,11 +68,13 @@
                                 <img class="product__image" src="static/images/logo/comingsoon.png"
                                     alt="" onerror="this.src = 'static/images/logo/alt_logo.png'">
                             {% elif not product['amount_items'] %}
-                                <img class="product__image" src="{{ product['logo_file'].replace('logo/', 'logo/soldout/soldout_') }}"
-                                    alt="" onerror="this.src = 'static/images/logo/alt_logo.png'">
+                                <img class="product__image"
+                                     src="{{ product['logo_file'].replace('logo/', 'logo/soldout/soldout_') }}"
+                                     alt="" onerror="this.src = 'static/images/logo/alt_logo.png'">
                             {% else %}
                                 <img class="product__image" src="{{ product['logo_file'] }}"
-                                    alt="" onerror="this.src = 'static/images/logo/alt_logo.png'" data-modal=#modal_product_{{ product['product_id'] }}>
+                                    alt="" onerror="this.src = 'static/images/logo/alt_logo.png'"
+                                     data-modal="#modal_product_{{ product['product_id'] }}">
                             {% endif %}
                             <div class="product__content">
                                 <div class="product__name">{{ product['product_name'] }}</div>

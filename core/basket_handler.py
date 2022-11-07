@@ -7,7 +7,7 @@ from cfg import SECRET_JWT
 
 
 def log(message: str) -> None:
-    module_name = "BASKETHANDLER"
+    module_name = "BASKET_HANDLER"
     base_logger(msg=message, module_name=module_name)
 
 
@@ -32,10 +32,10 @@ class BasketHandler:
     def get_basket_list(self, name: str) -> dict:
         log(f"Getting basket list for user={name}")
         if self.basket_dict.get(name) is None:
-            self.add_basket_list(name)
+            self.__add_basket_list(name)
         return self.basket_dict.get(name)
 
-    def add_basket_list(self, name: str) -> None:
+    def __add_basket_list(self, name: str) -> None:
         log(f"Creating new basket list for user={name}")
         self.basket_dict.update({
             name: {"creation_time": datetime.today(), "products": {}, "total": 0}
@@ -86,11 +86,11 @@ class BasketHandler:
             log(f"Decoding promocode: UNKNOWN ERROR: {e}, Returning (0, 'none')")
             return 0, "none"
 
-    def check_promocode(self, username: str, promo: str) -> bool:
+    def __check_promocode(self, username: str, promo: str) -> bool:
         _, user_jwt = self.decode_promocode(promo)
         return user_jwt == username and user_jwt != "none"
 
-    def check_order(self, username: str, promo: str) -> (bool, str):
+    def check_order(self, username: str) -> (bool, str):
         log(f"Checking order for username with name={username}")
         basket_list = self.get_basket_list(username)
         product_list = basket_list.get("products")
@@ -109,7 +109,7 @@ class BasketHandler:
         basket_list = self.get_basket_list(username)
         product_list = basket_list.get("products")
         sale = 0
-        if promo != "not" and self.check_promocode(username, promo):
+        if promo != "not" and self.__check_promocode(username, promo):
             sale, _ = self.decode_promocode(promo)
         number = 0
         while True:
@@ -133,7 +133,8 @@ class BasketHandler:
                 if product_chars["amount"] * product_chars["price"] < sale else sale
             sale -= current_sale
             success, response_msg = self.database_handler.add_order(
-                username, order_name, product_id, product_chars["amount"], current_sale, product_chars["price"], reserved_dict
+                username, order_name, product_id, product_chars["amount"],
+                current_sale, product_chars["price"], reserved_dict
             )
             self.database_handler.delete_promo(username, promo)
             log(f"Order={order_name}: product={product_name}, success={success}, msg={response_msg}")
@@ -147,7 +148,7 @@ class BasketHandler:
                 orders_list.append(self.database_handler.get_order_dict_for_history(name))
         return orders_list
 
-    def get_incompleted_orders_list(self) -> list:
+    def get_incomplete_orders_list(self) -> list:
         orders_names = self.database_handler.get_incomplete_orders()
         orders_list = []
         if orders_names is not None:

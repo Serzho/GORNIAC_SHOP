@@ -9,7 +9,7 @@ Base = declarative_base()
 
 
 def log(message: str) -> None:
-    base_logger(msg=message, module_name="INITDB")
+    base_logger(msg=message, module_name="DATABASE_INITIALIZATION")
 
 
 def load_session() -> Session:

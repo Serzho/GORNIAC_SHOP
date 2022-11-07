@@ -19,7 +19,7 @@ class Auth:
         self.email_handler = email_handler
         log("Auth handler initialized!")
         log("Creating admin profile")
-        self.create_admin()
+        self.__create_admin()
         log("Admin was created!")
 
     def change_password(self, username: str, password: str) -> (bool, str):
@@ -42,7 +42,7 @@ class Auth:
             log(f"Email for user={username} changed successfully!")
             return False, "Email isn't correct"
 
-    def create_admin(self) -> None:
+    def __create_admin(self) -> None:
         log("Creating admin")
         if not self.database_handler.username_exist("admin"):
             while True:

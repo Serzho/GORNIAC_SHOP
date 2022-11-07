@@ -1,3 +1,8 @@
+import sys
+
+sys.path.append("database")
+sys.path.append("core")
+
 HOST_API = "localhost"
 PORT_API = 8000
 

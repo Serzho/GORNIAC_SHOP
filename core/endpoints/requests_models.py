@@ -35,6 +35,7 @@ class AdminAddingItemForm(BaseModel):
 
 class AdminDeletingProductForm(BaseModel):
     product_id: int
+
     @classmethod
     def as_form(cls, product_id: int = Form(-1)):
         return cls(product_id=product_id)
