@@ -430,9 +430,16 @@ class DatabaseHandler:
             Reservation.is_completed,
             Reservation.total
         ).filter(Reservation.reservation_name == order_name)
-        order_dict = {
-            "name": order_name, "date": reservs.first().reservation_date, "is_completed": reservs.first().is_completed
-        }
+        try:
+            order_dict = {
+                "name": order_name,
+                "date": reservs.first().reservation_date,
+                "is_completed": reservs.first().is_completed
+            }
+        except Exception as e:
+            log(f"Getting orders for history: UNKNOWN ERROR: {e}")
+            order_dict = {}
+
         products = {}
         i, total_price = 0, 0
         for el in reservs:

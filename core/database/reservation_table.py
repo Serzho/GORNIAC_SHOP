@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import Column, Integer, VARCHAR, Boolean, SmallInteger, Date, ForeignKey, JSON
+from sqlalchemy import Column, Integer, VARCHAR, Boolean, SmallInteger, Date, JSON
 from core.database.init_database import Base
 
 
@@ -9,7 +9,7 @@ class Reservation(Base):
     reservation_date = Column("reservation_date", Date)
     user_id = Column("user_id", Integer)
     reservation_name = Column("reservation_name", VARCHAR(32))
-    product_id = Column("product_id", SmallInteger, ForeignKey("product.product_id"))
+    product_id = Column("product_id", SmallInteger)
     amount = Column("amount", SmallInteger)
     is_completed = Column("is_completed", Boolean)
     total = Column("total", SmallInteger)

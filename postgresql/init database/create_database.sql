@@ -53,6 +53,5 @@ CREATE TABLE reservation (
   sale smallint NOT NULL,
   items_reserved json NOT NULL,
   PRIMARY KEY (reservation_id),
-  CONSTRAINT reservation_product_id_product_product_id_foreign FOREIGN KEY (product_id) REFERENCES product (product_id),
   CONSTRAINT reservation_user_id_user_user_id_foreign FOREIGN KEY (user_id) REFERENCES "user" (user_id)
 );

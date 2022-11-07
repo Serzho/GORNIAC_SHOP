@@ -10,17 +10,15 @@ from core.pages_loader import load_profile_page, load_main_page, load_signup_pag
 from core.endpoints.requests_models import *
 from core.auth_handler import Auth
 from core.basket_handler import BasketHandler
-from core.email_handler import EmailHandler
 
 
 pages_dict = upload_pages()
 database_handler = DatabaseHandler()
 app = FastAPI()
-email_handler = EmailHandler()
-auth_handler = Auth(database_handler, email_handler)
+auth_handler = Auth(database_handler)
 order_dict = {}
 
-basket_handler = BasketHandler(database_handler, email_handler)
+basket_handler = BasketHandler(database_handler)
 
 
 def log(message: str) -> None:
@@ -581,6 +579,7 @@ async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
-    # print(f"Process time {process_time}")
+    print(f"Process time {process_time}")
+    log(f"Process time {process_time}")
     response.headers["X-Process-Time"] = str(process_time)
     return response

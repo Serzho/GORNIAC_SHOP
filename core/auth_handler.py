@@ -2,7 +2,6 @@ from re import match
 from hashlib import sha3_256
 from service import base_logger
 from database_handler import DatabaseHandler
-from email_handler import EmailHandler
 
 
 def log(message: str) -> None:
@@ -12,11 +11,9 @@ def log(message: str) -> None:
 
 class Auth:
     database_handler: DatabaseHandler
-    email_handler: EmailHandler
 
-    def __init__(self, database_handler: DatabaseHandler, email_handler: EmailHandler) -> None:
+    def __init__(self, database_handler: DatabaseHandler) -> None:
         self.database_handler = database_handler
-        self.email_handler = email_handler
         log("Auth handler initialized!")
         log("Creating admin profile")
         self.__create_admin()
@@ -105,5 +102,3 @@ class Auth:
 
     def ban_user(self, user_id: int, ban_description: str) -> None:
         self.database_handler.ban_user(user_id, ban_description)
-        username = self.database_handler.get_username(user_id)
-        self.email_handler.send_ban_email(ban_description, username, self.database_handler.get_user_email(username))
