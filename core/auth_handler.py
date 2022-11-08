@@ -1,5 +1,6 @@
 from re import match
 from hashlib import sha3_256
+from cfg import IN_DOCKER, ADMIN_PASS, ADMIN_EMAIL
 from core.service import base_logger
 from core.database_handler import DatabaseHandler
 
@@ -44,9 +45,9 @@ class Auth:
         if not self.database_handler.username_exist("admin"):
             while True:
                 print("Please, enter admin password: ")
-                password = input()
+                password = ADMIN_PASS if IN_DOCKER else input()
                 print("Please, enter admin email: ")
-                email = input()
+                email = ADMIN_EMAIL if IN_DOCKER else input()
                 success, msg = self.sign_up("admin", password, email)
                 if success:
                     log("Admin profile was created!")
@@ -93,7 +94,7 @@ class Auth:
             return False, f"User with name {username} doesn't exists!"
         elif self.database_handler.check_ban_user(username):
             return False, "BAN"
-        elif self.database_handler.get_user(username)["hashed_password"] == self.hash_password(password):
+        elif self.database_handler.get_user(username).get("hashed_password") == self.hash_password(password):
             log(f"Correct authentication user with name={username}")
             return True, "Correct authentication"
         else:

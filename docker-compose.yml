@@ -1,4 +1,9 @@
 version: "1.0.0"
+networks:
+  gorniacnet:
+    external:
+      name: gorniacglobalnet
+
 services:
   postgres:
     container_name: postgres_container
@@ -15,6 +20,10 @@ services:
       - ./pgdata:/var/lib/postgresql/data/
     ports:
       - "5432:5432"
+    networks:
+      gorniacnet:
+        aliases:
+          - posgres.gorniacnet
 
   pgadmin:
     container_name: pgadmin_container
@@ -27,6 +36,10 @@ services:
       - ./pgadmin:/var/lib/pgadmin
     ports:
       - "5050:80"
+    networks:
+      gorniacnet:
+        aliases:
+          - pgadmin.gorniacnet
 
   fastapi:
     build: .
@@ -38,3 +51,7 @@ services:
       - ./app:/app
     ports:
       - 8000:8000
+    networks:
+      gorniacnet:
+        aliases:
+          - fastapi.gorniacnet

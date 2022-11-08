@@ -6,7 +6,9 @@ sys.path.append("database")
 HOST_API = "localhost"
 PORT_API = 8000
 
-HOST_DB = "localhost"
+IN_DOCKER = True
+
+HOST_DB = "postgres" if IN_DOCKER else "localhost"
 DB_DIALECT = "postgresql"
 PORT_DB = 5432
 DB_DRIVER = "psycopg2"
@@ -29,4 +31,5 @@ EMAIL = "kudrsv.kudrsv@mail.ru"
 EMAIL_PORT = 465
 EMAIL_PASS = "DB4rppxQy8buS3EUJ3rV"
 
-DOCKERIZE = False
+ADMIN_PASS = "Gorniacshop12345"
+ADMIN_EMAIL = "kudrsv.kudrsv@gmail.com"

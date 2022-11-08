@@ -45,14 +45,14 @@ class BasketHandler:
         if adding_product is not None:
             basket_list = self.get_basket_list(name)
             product_list = basket_list.get("products")
-            current_product = product_list.get(adding_product["product_name"])
+            current_product = product_list.get(adding_product.get("product_name"))
             if current_product is not None:
-                new_amount = 1 + product_list[adding_product["product_name"]]["amount"]
+                new_amount = 1 + product_list.get(adding_product.get("product_name")).get("amount")
             else:
                 new_amount = 1
             product_list.update(
-                {adding_product["product_name"]: {"price": adding_product["price"], "amount": new_amount}})
-            basket_list.update({"total": basket_list.get("total") + adding_product["price"]})
+                {adding_product.get("product_name"): {"price": adding_product.get("price"), "amount": new_amount}})
+            basket_list.update({"total": basket_list.get("total") + adding_product.get("price")})
             log(f"Product was added")
         else:
             log(f"Adding product is None!!!")
@@ -63,12 +63,12 @@ class BasketHandler:
         product_list = basket_list.get("products")
         current_product = product_list.get(product_name)
         if current_product is not None:
-            last_amount = product_list[product_name]["amount"]
+            last_amount = product_list.get(product_name).get("amount")
             if last_amount <= 1:
                 del product_list[product_name]
             else:
                 product_list.get(product_name).update({"amount": last_amount - 1})
-            basket_list.update({"total": basket_list.get("total") - current_product["price"]})
+            basket_list.update({"total": basket_list.get("total") - current_product.get("price")})
         else:
             log(f"Current product with name={product_name} doesn't exist in list")
 
@@ -95,7 +95,7 @@ class BasketHandler:
             return False, "Basket is empty!"
         else:
             for product_name, product_chars in product_list.items():
-                if product_chars["amount"] > self.database_handler.get_amount(product_name):
+                if product_chars.get("amount") > self.database_handler.get_amount(product_name):
                     return False, f"Invalid amount products: " \
                                   f"only {self.database_handler.get_amount(product_name)} items of {product_name}" \
                                   f" exists!"
@@ -121,16 +121,16 @@ class BasketHandler:
             product_id = self.database_handler.get_product_id(product_name)
             reserved_list = self.database_handler.reserve_items(
                 product_id=product_id,
-                amount=product_chars["amount"]
+                amount=product_chars.get("amount")
             )
             reserved_dict = {i: reserved_list[i] for i in range(len(reserved_list))}
             self.database_handler.refresh_amount_items(product_id)
-            current_sale = product_chars["amount"] * product_chars["price"] \
-                if product_chars["amount"] * product_chars["price"] < sale else sale
+            current_sale = product_chars.get("amount") * product_chars.get("price") \
+                if product_chars.get("amount") * product_chars.get("price") < sale else sale
             sale -= current_sale
             success, response_msg = self.database_handler.add_order(
-                username, order_name, product_id, product_chars["amount"],
-                current_sale, product_chars["price"], reserved_dict
+                username, order_name, product_id, product_chars.get("amount"),
+                current_sale, product_chars.get("price"), reserved_dict
             )
             self.database_handler.delete_promo(username, promo)
             log(f"Order={order_name}: product={product_name}, success={success}, msg={response_msg}")

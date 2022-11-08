@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from cfg import LOGFILE_PATH, DOCKERIZE
+from cfg import LOGFILE_PATH, IN_DOCKER
 
 
 def base_logger(msg: str, module_name: str) -> None:
@@ -24,7 +24,7 @@ def log(message: str) -> None:
 def upload_pages() -> dict:
     log("Uploading pages from disk")
     pages_dict = {}
-    path = 'core/pages' if DOCKERIZE else 'pages'
+    path = 'core/pages' if IN_DOCKER else 'pages'
     files_list = [file for file in Path(path).iterdir() if file.is_file()]
     for file in files_list:
         pages_dict.update({file.name: file.open("r", encoding='UTF-8').read()})
