@@ -1,4 +1,4 @@
-version: "1.0.0"
+version: "3"
 networks:
   gorniacnet:
     external:
@@ -50,7 +50,7 @@ services:
     volumes:
       - ./app:/app
     ports:
-      - 8000:8000
+      - "8000:8000"
     networks:
       gorniacnet:
         aliases:

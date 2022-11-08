@@ -3,7 +3,7 @@ import sys
 sys.path.append("core")
 sys.path.append("database")
 
-HOST_API = "localhost"
+HOST_API = "0.0.0.0"
 PORT_API = 8000
 
 IN_DOCKER = True
