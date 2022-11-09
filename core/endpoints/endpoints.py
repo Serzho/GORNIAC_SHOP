@@ -32,6 +32,34 @@ def get_config() -> Settings:
     return Settings()
 
 
+@app.post("/admin_panel/changing_product", response_class=RedirectResponse)
+async def changing_product(
+        product_info: AdminChangingProductForm = Depends(AdminChangingProductForm.as_form),
+        authorize: AuthJWT = Depends()) -> RedirectResponse:
+    log(f"Changing product from admin panel request: product={product_info}")
+    try:
+        authorize.jwt_required()
+        current_user = authorize.get_jwt_subject()
+        assert current_user == "admin"
+        log("Admin was authenticated")
+    except (MissingTokenError, JWTDecodeError, AssertionError):
+        log("Authenticated error!")
+        return RedirectResponse("/login")
+    log("Changing product in database")
+    database_handler.change_product(
+        product_id=product_info.product_id,
+        nicotine=product_info.nicotine,
+        vp_pg=product_info.vp_pg,
+        product_name=product_info.name,
+        description=product_info.description,
+        logo_file=product_info.logo_file,
+        price=product_info.price,
+        volume=product_info.volume,
+        rating=product_info.rating
+    )
+    return RedirectResponse("/admin_panel/", status_code=303)
+
+
 @app.post("/admin_panel/adding_product", response_class=RedirectResponse)
 async def adding_product(
         product_info: AdminAddingProductForm = Depends(AdminAddingProductForm.as_form),

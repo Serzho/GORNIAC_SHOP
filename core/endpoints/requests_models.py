@@ -59,6 +59,27 @@ class AdminAddingProductForm(BaseModel):
             price=price, volume=volume, rating=rating)
 
 
+class AdminChangingProductForm(BaseModel):
+    product_id: int
+    nicotine: int
+    vp_pg: str
+    name: str
+    description: str
+    logo_file: str
+    price: int
+    volume: int
+    rating: int
+
+    @classmethod
+    def as_form(
+            cls, product_id: int = Form(None), nicotine: int = Form(None), vp_pg: str = Form(None),
+            name: str = Form(None), description: str = Form(None),
+            logo_file: str = Form(None), price: int = Form(None), volume: int = Form(None), rating: int = Form(None)):
+        return cls(
+            product_id=product_id, nicotine=nicotine, vp_pg=vp_pg, name=name, description=description,
+            logo_file=logo_file, price=price, volume=volume, rating=rating)
+
+
 class AdminBanUserForm(BaseModel):
     user_id: int
     ban_description: str

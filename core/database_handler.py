@@ -221,6 +221,35 @@ class DatabaseHandler:
     def get_user_id(self, username: str) -> int:
         return self.__session.query(User.user_id, User.name).filter(User.name == username).first().user_id
 
+    def change_product(
+            self, product_id: int, nicotine: int, vp_pg: str, product_name: str, description: str,
+            logo_file: str, price: int, volume: int, rating: int) -> None:
+        log("Changing product in database")
+        product = self.__session.query(Product).filter(Product.product_id == product_id).first()
+        if product:
+            if nicotine:
+                product.nicotine = nicotine
+            if vp_pg:
+                product.vp_pg = vp_pg
+            if product_name:
+                product.product_name = product_name
+            if description:
+                product.description = description
+            if logo_file:
+                product.logo_file = logo_file
+            if price:
+                product.price = price
+            if volume:
+                product.volume = volume
+            if rating:
+                product.rating = rating
+        log(f"Changed product: {product.__dict__}")
+        try:
+            self.__session.commit()
+            log("Product was successfully changed")
+        except Exception as e:
+            log(f"Changing product: UNKNOWN ERROR: {e}")
+
     def add_product(
             self, nicotine: int, vp_pg: str, product_name: str, description: str,
             logo_file: str, price: int, volume: int, rating: int) -> None:

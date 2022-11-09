@@ -106,6 +106,37 @@
     </p>
     <input type="submit" value="Удалить" />
   </form>
+  <h2> ИЗМЕНЕНИЕ ПРОДУКТА </h2>
+  <form action="/admin_panel/changing_product" method="post">
+    <p><strong>PRODUCT_ID:</strong>
+      <input maxlength="3" size="40" name="product_id">
+    </p>
+    <p><strong>NICOTINE:</strong>
+      <input maxlength="3" size="40" name="nicotine">
+    </p>
+    <p><strong>VG_PG:</strong>
+      <input maxlength="8" size="40" name="vp_pg">
+    </p>
+    <p><strong>NAME:</strong>
+      <input maxlength="32" size="40" name="name">
+    </p>
+    <p><strong>DESCRIPTION:</strong>
+      <input maxlength="1024" size="1500" name="description">
+    </p>
+    <p><strong>LOGO_FILE:</strong>
+      <input maxlength="64" size="80" name="logo_file">
+    </p>
+    <p><strong>PRICE:</strong>
+      <input maxlength="8" size="40" name="price">
+    </p>
+    <p><strong>VOLUME:</strong>
+      <input maxlength="3" size="40" name="volume">
+    </p>
+    <p><strong>RATING:</strong>
+      <input maxlength="3" size="40" name="rating">
+    </p>
+    <input type="submit" value="Добавить" />
+  </form>
   <h2> РАБОТА С ЗАКАЗАМИ </h2>
   {% for order in orders[::-1] %}
     <div class="order__col">
