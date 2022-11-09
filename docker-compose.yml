@@ -48,7 +48,7 @@ services:
     links:
       - postgres
     volumes:
-      - ./app:/app
+      - ./img_docker:/core/static/images
     ports:
       - "8000:8000"
     networks:
