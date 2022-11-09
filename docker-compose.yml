@@ -48,7 +48,7 @@ services:
     links:
       - postgres
     volumes:
-      - ./img_docker:/core/static/images
+      - ./logo_docker:/core/static/images/logo
     ports:
       - "8000:8000"
     networks:
