@@ -17,9 +17,6 @@ DB_USER = "root"
 DB_PASSWORD = "gorniacisgood"
 DB_NAME = "gorniac"
 
-PGADMIN_DEFAULT_EMAIL = "kudrsv.kudrsv@gmail.com"
-PGADMIN_DEFAULT_PASSWORD = "gorniacadmin"
-
 LOGFILE_PATH = "log.txt"
 
 ECHO_FLAG = False
@@ -29,7 +26,8 @@ JWT_LOCATION = {"cookies"}
 EMAIL_HOST = "smtp.mail.ru"
 EMAIL = "kudrsv.kudrsv@mail.ru"
 EMAIL_PORT = 465
-EMAIL_PASS = "DB4rppxQy8buS3EUJ3rV"
+EMAIL_PASS = "JfMEhgYqdxqpFEp3uMnQ"
+EMAIL_DELAY = 2
 
-ADMIN_PASS = "Gorniacshop12345"
+ADMIN_PASS = "Gorniacshop12345"  # used after start by docker
 ADMIN_EMAIL = "kudrsv.kudrsv@gmail.com"

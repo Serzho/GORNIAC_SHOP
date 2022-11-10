@@ -3,6 +3,7 @@ from hashlib import sha3_256
 from cfg import IN_DOCKER, ADMIN_PASS, ADMIN_EMAIL
 from core.service import base_logger
 from core.database_handler import DatabaseHandler
+from core.email_handler import EmailHandler
 
 
 def log(message: str) -> None:
@@ -12,9 +13,11 @@ def log(message: str) -> None:
 
 class Auth:
     database_handler: DatabaseHandler
+    email_handler: EmailHandler
 
-    def __init__(self, database_handler: DatabaseHandler) -> None:
+    def __init__(self, database_handler: DatabaseHandler, email_handler: EmailHandler) -> None:
         self.database_handler = database_handler
+        self.email_handler = email_handler
         log("Auth handler initialized!")
         log("Creating admin profile")
         self.__create_admin()
@@ -77,6 +80,7 @@ class Auth:
             return False, f"User with name {username} already exists!"
         else:
             log(f"Adding user with name={username} to database")
+            self.email_handler.add_signup_email(username, email)
             return self.database_handler.add_user(username, hashed_password, email)
 
     @staticmethod
@@ -103,3 +107,5 @@ class Auth:
 
     def ban_user(self, user_id: int, ban_description: str) -> None:
         self.database_handler.ban_user(user_id, ban_description)
+        username = self.database_handler.get_username(user_id)
+        self.email_handler.add_ban_email(ban_description, username, self.database_handler.get_user_email(username))

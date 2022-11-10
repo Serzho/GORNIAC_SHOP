@@ -3,6 +3,7 @@ import jwt
 from core.service import base_logger
 from core.database_handler import DatabaseHandler
 from cfg import SECRET_JWT
+from core.email_handler import EmailHandler
 
 
 def log(message: str) -> None:
@@ -13,10 +14,12 @@ def log(message: str) -> None:
 class BasketHandler:
     basket_dict: dict
     database_handler: DatabaseHandler
+    email_handler: EmailHandler
 
-    def __init__(self, database_handler: DatabaseHandler):
+    def __init__(self, database_handler: DatabaseHandler, email_handler: EmailHandler):
         self.basket_dict = {}
         self.database_handler = database_handler
+        self.email_handler = email_handler
         log("Basket handler initialized")
 
     def create_promocode(self, user_id: int, sale: int):
@@ -117,6 +120,7 @@ class BasketHandler:
                 number += 1
         log(f"Order for user {username}: title={order_name}")
         self.database_handler.register_order(order_name, username)
+        self.email_handler.add_order_email(order_name, username, self.database_handler.get_user_email(username))
         for product_name, product_chars in product_list.items():
             product_id = self.database_handler.get_product_id(product_name)
             reserved_list = self.database_handler.reserve_items(

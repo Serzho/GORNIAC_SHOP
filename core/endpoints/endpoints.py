@@ -10,15 +10,17 @@ from core.pages_loader import load_profile_page, load_main_page, load_signup_pag
 from core.endpoints.requests_models import *
 from core.auth_handler import Auth
 from core.basket_handler import BasketHandler
-
+from core.email_handler import EmailHandler
 
 pages_dict = upload_pages()
 database_handler = DatabaseHandler()
 app = FastAPI()
-auth_handler = Auth(database_handler)
+email_handler = EmailHandler()
+email_handler.start()
+auth_handler = Auth(database_handler, email_handler)
 order_dict = {}
 
-basket_handler = BasketHandler(database_handler)
+basket_handler = BasketHandler(database_handler, email_handler)
 
 
 def log(message: str) -> None:
