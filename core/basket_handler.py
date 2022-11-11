@@ -94,6 +94,8 @@ class BasketHandler:
         log(f"Checking order for username with name={username}")
         basket_list = self.get_basket_list(username)
         product_list = basket_list.get("products")
+        if self.database_handler.check_ban_user(username):
+            return False, "User was banned!"
         if not len(product_list):
             return False, "Basket is empty!"
         else:
